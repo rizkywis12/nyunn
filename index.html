@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Untukmu 🌸</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #1a0a1e 0%, #2d1b3d 30%, #1e1530 60%, #1a0a1e 100%);
+            font-family: 'Lora', serif;
+            overflow-x: hidden;
+            position: relative;
+            color: #f0e0d0;
+        }
+
+        /* Stars */
+        .star {
+            position: fixed;
+            width: 2px;
+            height: 2px;
+            background: #fff;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: twinkle var(--dur) ease-in-out infinite;
+            animation-delay: var(--delay);
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.5); }
+        }
+
+        /* Floating petals */
+        .petal {
+            position: fixed;
+            pointer-events: none;
+            opacity: 0;
+            animation: petalFall linear infinite;
+            animation-delay: var(--delay);
+            filter: drop-shadow(0 0 6px rgba(244, 143, 177, 0.4));
+        }
+
+        @keyframes petalFall {
+            0% {
+                opacity: 0;
+                transform: translateY(-20vh) translateX(0) rotate(0deg);
+            }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.3; }
+            100% {
+                opacity: 0;
+                transform: translateY(110vh) translateX(var(--drift)) rotate(360deg);
+            }
+        }
+
+        /* Music button */
+        .music-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid rgba(244, 143, 177, 0.4);
+            background: rgba(45, 27, 61, 0.8);
+            backdrop-filter: blur(10px);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            color: #f48fb1;
+            font-size: 1.3rem;
+        }
+
+        .music-btn:hover {
+            border-color: #f48fb1;
+            background: rgba(194, 24, 91, 0.3);
+            transform: scale(1.1);
+        }
+
+        .music-btn.playing {
+            animation: musicPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes musicPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(244, 143, 177, 0.3); }
+            50% { box-shadow: 0 0 0 12px rgba(244, 143, 177, 0); }
+        }
+
+        /* Main content */
+        .main-wrapper {
+            width: 100%;
+            max-width: 700px;
+            padding: 40px 20px 80px;
+            position: relative;
+        }
+
+        /* Intro envelope */
+        .intro-section {
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.6s ease;
+        }
+
+        .intro-section.hidden {
+            display: none;
+        }
+
+        .envelope-icon {
+            font-size: 5rem;
+            animation: envelopeFloat 3s ease-in-out infinite;
+            filter: drop-shadow(0 10px 30px rgba(244, 143, 177, 0.3));
+        }
+
+        @keyframes envelopeFloat {
+            0%, 100% { transform: translateY(0) rotate(-3deg); }
+            50% { transform: translateY(-15px) rotate(3deg); }
+        }
+
+        .intro-text {
+            margin-top: 25px;
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.5rem;
+            color: #f48fb1;
+            opacity: 0.8;
+        }
+
+        .intro-sub {
+            margin-top: 10px;
+            font-size: 0.85rem;
+            color: rgba(240, 224, 208, 0.4);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Letter */
+        .letter-section {
+            display: none;
+        }
+
+        .letter-section.show {
+            display: block;
+            animation: revealLetter 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        @keyframes revealLetter {
+            from {
+                opacity: 0;
+                transform: translateY(40px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .letter-paper {
+            position: relative;
+            padding: 50px 40px;
+            background: linear-gradient(180deg, 
+                rgba(45, 27, 61, 0.6) 0%, 
+                rgba(30, 21, 48, 0.7) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(244, 143, 177, 0.15);
+            border-radius: 12px;
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(244, 143, 177, 0.1);
+        }
+
+        .letter-paper::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            bottom: 15px;
+            border: 1px solid rgba(244, 143, 177, 0.08);
+            border-radius: 6px;
+            pointer-events: none;
+        }
+
+        .letter-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .letter-header h1 {
+            font-family: 'Dancing Script', cursive;
+            font-size: 2.5rem;
+            color: #f48fb1;
+            font-weight: 700;
+            margin-bottom: 8px;
+            opacity: 0;
+            animation: fadeSlideIn 0.6s ease 0.3s forwards;
+        }
+
+        .letter-header .sub {
+            font-size: 0.85rem;
+            color: rgba(240, 224, 208, 0.5);
+            font-style: italic;
+            opacity: 0;
+            animation: fadeSlideIn 0.6s ease 0.5s forwards;
+        }
+
+        .letter-header .divider {
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            opacity: 0;
+            animation: fadeSlideIn 0.6s ease 0.6s forwards;
+        }
+
+        .letter-header .divider span {
+            font-size: 1.2rem;
+        }
+
+        .letter-header .divider::before,
+        .letter-header .divider::after {
+            content: '';
+            width: 60px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(244, 143, 177, 0.4), transparent);
+        }
+
+        /* Stanza */
+        .stanza {
+            margin-bottom: 30px;
+            opacity: 0;
+            animation: fadeSlideIn 0.8s ease forwards;
+        }
+
+        .stanza p {
+            font-size: 1.05rem;
+            line-height: 2;
+            color: rgba(240, 224, 208, 0.85);
+            font-style: italic;
+            text-align: center;
+        }
+
+        .stanza .accent {
+            color: #f48fb1;
+            font-weight: 600;
+            font-style: normal;
+        }
+
+        @keyframes fadeSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Closing */
+        .letter-closing {
+            text-align: right;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(244, 143, 177, 0.15);
+            opacity: 0;
+            animation: fadeSlideIn 0.6s ease forwards;
+        }
+
+        .letter-closing .for {
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.4rem;
+            color: #f48fb1;
+            margin-bottom: 5px;
+        }
+
+        .letter-closing .desc {
+            font-size: 0.85rem;
+            color: rgba(240, 224, 208, 0.5);
+            font-style: italic;
+            margin-bottom: 15px;
+        }
+
+        .letter-closing .signature {
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.6rem;
+            color: #ce93d8;
+            font-weight: 700;
+        }
+
+        /* Music visualizer */
+        .music-visualizer {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 3px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .music-visualizer.active {
+            opacity: 1;
+        }
+
+        .music-bar {
+            width: 3px;
+            height: 8px;
+            background: #f48fb1;
+            border-radius: 2px;
+            animation: musicBar 0.8s ease-in-out infinite alternate;
+            animation-delay: var(--delay);
+        }
+
+        @keyframes musicBar {
+            from { height: 4px; opacity: 0.4; }
+            to { height: 16px; opacity: 1; }
+        }
+
+        /* Glow effect behind letter */
+        .glow {
+            position: fixed;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(244, 143, 177, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Scroll reveal */
+        .reveal-on-scroll {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s ease;
+        }
+
+        .reveal-on-scroll.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 600px) {
+            .letter-paper {
+                padding: 35px 20px;
+            }
+
+            .letter-header h1 {
+                font-size: 2rem;
+            }
+
+            .stanza p {
+                font-size: 0.95rem;
+                line-height: 1.9;
+            }
+
+            .letter-closing .signature {
+                font-size: 1.3rem;
+            }
+
+            .envelope-icon {
+                font-size: 4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <button class="music-btn" id="musicBtn" onclick="toggleMusic()" title="Nyalakan musik">
+        🎵
+    </button>
+
+    <div class="glow"></div>
+
+    <div class="main-wrapper">
+        <!-- Intro -->
+        <div class="intro-section" id="introSection" onclick="openLetter()">
+            <div class="envelope-icon">💌</div>
+            <p class="intro-text">Ada sesuatu untukmu...</p>
+            <p class="intro-sub">ketuk untuk membuka</p>
+        </div>
+
+        <!-- Letter -->
+        <div class="letter-section" id="letterSection">
+            <div class="letter-paper">
+                <div class="letter-header">
+                    <h1>Untukmu</h1>
+                    <p class="sub">sebuah surat dari hati yang paling dalam</p>
+                    <div class="divider"><span>🌸</span></div>
+                </div>
+
+                <div class="stanza" style="animation-delay: 0.4s;">
+                    <p>
+                        Pertama kali kulihat <span class="accent">senyummu</span>,<br>
+                        Aku tahu ada badai di balik tawamu,<br>
+                        Matamu cantik menyimpan seribu cerita,<br>
+                        Tentang luka yang kau rawat dalam diam saja.
+                    </p>
+                </div>
+
+                <div class="stanza" style="animation-delay: 0.8s;">
+                    <p>
+                        Bahumu yang kecil menanggung langit,<br>
+                        Namun caramu melangkah tak pernah sakit,<br>
+                        Tangan mungilmu yang muat di genggamanku itu,<br>
+                        Adalah tangan paling kuat yang pernah aku tahu.
+                    </p>
+                </div>
+
+                <div class="stanza" style="animation-delay: 1.2s;">
+                    <p>
+                        Aku <span class="accent">kagum</span>, lebih dari sekadar cinta,<br>
+                        Melihatmu berjuang dengan senyum di muka,<br>
+                        Tidak ada keluhan yang kau biarkan jatuh,<br>
+                        Hanya tekad perempuan yang sungguh teguh.
+                    </p>
+                </div>
+
+                <div class="stanza" style="animation-delay: 1.6s;">
+                    <p>
+                        Cantikmu bukan hanya yang tertangkap mata,<br>
+                        Tapi dari caramu mencinta tanpa meminta,<br>
+                        Lucumu adalah pelariku dari lelah dunia,<br>
+                        Dan kekuatanmu membuatku ingin selalu ada.
+                    </p>
+                </div>
+
+                <div class="stanza" style="animation-delay: 2s;">
+                    <p>
+                        Izinkan aku menjadi tempat kau <span class="accent">bersandar</span>,<br>
+                        Menjadi tangan yang meringankan bebanmu itu,<br>
+                        Bukan karena kasihan, tapi karena aku sadar —<br>
+                        Perempuan sepertimu layak dicintai seutuhnya.
+                    </p>
+                </div>
+
+                <div class="stanza" style="animation-delay: 2.4s;">
+                    <p>
+                        Kau tidak perlu lagi berjalan sendiri,<br>
+                        Aku di sini, bukan untuk mengganti siapapun,<br>
+                        Hanya ingin menemanimu setiap hari,<br>
+                        Karena kau adalah <span class="accent">rumah</span> yang selalu ingin kuhuni.
+                    </p>
+                </div>
+
+                <div class="letter-closing" style="animation-delay: 2.8s;">
+                    <p class="for">Untuk kamu — yang kuat, yang cantik, yang kuat</p>
+                    <p class="desc">🌸</p>
+                    <p class="signature">— RZY</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Music visualizer -->
+    <div class="music-visualizer" id="musicVisualizer">
+        <div class="music-bar" style="--delay: 0s"></div>
+        <div class="music-bar" style="--delay: 0.1s"></div>
+        <div class="music-bar" style="--delay: 0.2s"></div>
+        <div class="music-bar" style="--delay: 0.3s"></div>
+        <div class="music-bar" style="--delay: 0.4s"></div>
+        <div class="music-bar" style="--delay: 0.3s"></div>
+        <div class="music-bar" style="--delay: 0.2s"></div>
+        <div class="music-bar" style="--delay: 0.1s"></div>
+    </div>
+
+    <script>
+        // Create stars
+        function createStars() {
+            for (let i = 0; i < 80; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.setProperty('--dur', (2 + Math.random() * 4) + 's');
+                star.style.setProperty('--delay', (Math.random() * 4) + 's');
+                star.style.width = (1 + Math.random() * 2) + 'px';
+                star.style.height = star.style.width;
+                document.body.appendChild(star);
+            }
+        }
+        createStars();
+
+        // Create petals
+        function createPetals() {
+            const petalShapes = ['🌸', '🩷', '✿'];
+            for (let i = 0; i < 12; i++) {
+                const petal = document.createElement('div');
+                petal.className = 'petal';
+                petal.textContent = petalShapes[Math.floor(Math.random() * petalShapes.length)];
+                petal.style.left = Math.random() * 100 + '%';
+                petal.style.fontSize = (12 + Math.random() * 14) + 'px';
+                petal.style.setProperty('--delay', (Math.random() * 15) + 's');
+                petal.style.setProperty('--drift', (Math.random() - 0.5) * 100 + 'px');
+                petal.style.animationDuration = (8 + Math.random() * 12) + 's';
+                document.body.appendChild(petal);
+            }
+        }
+        createPetals();
+
+        // Open letter
+        function openLetter() {
+            const intro = document.getElementById('introSection');
+            const letter = document.getElementById('letterSection');
+
+            intro.style.transition = 'all 0.5s ease';
+            intro.style.opacity = '0';
+            intro.style.transform = 'scale(0.9) translateY(-20px)';
+
+            setTimeout(() => {
+                intro.classList.add('hidden');
+                letter.classList.add('show');
+                // Auto start music
+                if (!isPlaying) {
+                    toggleMusic();
+                }
+            }, 500);
+        }
+
+        // Music system using Web Audio API
+        let audioCtx = null;
+        let isPlaying = false;
+        let masterGain = null;
+        let musicTimeout = null;
+
+        // Romantic chord progression: Am - F - C - G (classic emotional progression)
+        // Notes in frequencies
+        const notes = {
+            // Octave 3
+            A3: 220.00, B3: 246.94, C4: 261.63, D4: 293.66, E4: 329.63,
+            F4: 349.23, G4: 392.00, A4: 440.00, B4: 493.88, C5: 523.25,
+            D5: 587.33, E5: 659.25, F5: 698.46, G5: 783.99, A5: 880.00,
+            // Lower
+            A2: 110.00, C3: 130.81, E3: 164.81, F3: 174.61, G3: 196.00,
+        };
+
+        // Chord definitions
+        const chords = {
+            Am: [notes.A3, notes.C4, notes.E4, notes.A4],
+            F:  [notes.F3, notes.A3, notes.C4, notes.F4],
+            C:  [notes.C3, notes.E3, notes.G3, notes.C4],
+            G:  [notes.G3, notes.B3, notes.D4, notes.G4],
+        };
+
+        // Melody notes for each chord - romantic pentatonic-ish melody
+        const melodies = {
+            Am: [
+                { note: notes.E5, dur: 0.8 },
+                { note: notes.C5, dur: 0.6 },
+                { note: notes.A4, dur: 0.7 },
+                { note: notes.E4, dur: 0.5 },
+                { note: notes.A4, dur: 0.9 },
+                { note: notes.C5, dur: 0.6 },
+            ],
+            F: [
+                { note: notes.A4, dur: 0.7 },
+                { note: notes.F4, dur: 0.5 },
+                { note: notes.C5, dur: 0.8 },
+                { note: notes.A4, dur: 0.6 },
+                { note: notes.F4, dur: 0.7 },
+                { note: notes.C4, dur: 0.5 },
+            ],
+            C: [
+                { note: notes.G4, dur: 0.8 },
+                { note: notes.E4, dur: 0.6 },
+                { note: notes.C5, dur: 0.7 },
+                { note: notes.G4, dur: 0.5 },
+                { note: notes.E4, dur: 0.9 },
+                { note: notes.C4, dur: 0.6 },
+            ],
+            G: [
+                { note: notes.D5, dur: 0.7 },
+                { note: notes.B4, dur: 0.5 },
+                { note: notes.G4, dur: 0.8 },
+                { note: notes.D4, dur: 0.6 },
+                { note: notes.G4, dur: 0.7 },
+                { note: notes.B3, dur: 0.5 },
+            ],
+        };
+
+        function createSynthSound(ctx, frequency, startTime, duration, type, volume) {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            const filter = ctx.createBiquadFilter();
+
+            osc.type = type || 'sine';
+            osc.frequency.setValueAtTime(frequency, startTime);
+
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(2000, startTime);
+            filter.Q.setValueAtTime(1, startTime);
+
+            gain.gain.setValueAtTime(0, startTime);
+            gain.gain.linearRampToValueAtTime(volume, startTime + 0.05);
+            gain.gain.exponentialRampToValueAtTime(volume * 0.7, startTime + duration * 0.3);
+            gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration * 0.95);
+
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(masterGain);
+
+            osc.start(startTime);
+            osc.stop(startTime + duration);
+        }
+
+        function playChord(ctx, chordName, startTime) {
+            const chord = chords[chordName];
+            chord.forEach(freq => {
+                createSynthSound(ctx, freq, startTime, 3.5, 'sine', 0.04);
+                // Add slight detune for warmth
+                createSynthSound(ctx, freq * 1.002, startTime, 3.5, 'sine', 0.02);
+            });
+        }
+
+        function playMelody(ctx, chordName, startTime) {
+            const melody = melodies[chordName];
+            let time = startTime;
+            melody.forEach(m => {
+                createSynthSound(ctx, m.note, time, m.dur * 0.9, 'triangle', 0.08);
+                // Harmonic
+                createSynthSound(ctx, m.note * 2, time, m.dur * 0.9, 'sine', 0.02);
+                time += m.dur;
+            });
+        }
+
+        const chordProgression = ['Am', 'F', 'C', 'G', 'Am', 'F', 'C', 'G'];
+        let cycleInterval = null;
+
+        function playMusicCycle() {
+            if (!audioCtx || !isPlaying) return;
+
+            let now = audioCtx.currentTime;
+
+            chordProgression.forEach((chord, i) => {
+                const chordStart = now + i * 3.5;
+                playChord(audioCtx, chord, chordStart);
+                playMelody(audioCtx, chord, chordStart);
+            });
+
+            const totalDuration = chordProgression.length * 3.5 * 1000;
+            musicTimeout = setTimeout(() => {
+                if (isPlaying) playMusicCycle();
+            }, totalDuration);
+        }
+
+        function toggleMusic() {
+            const btn = document.getElementById('musicBtn');
+            const visualizer = document.getElementById('musicVisualizer');
+
+            if (!isPlaying) {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    masterGain = audioCtx.createGain();
+                    masterGain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+                    masterGain.connect(audioCtx.destination);
+                }
+
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+
+                isPlaying = true;
+                btn.textContent = '🎶';
+                btn.classList.add('playing');
+                visualizer.classList.add('active');
+                playMusicCycle();
+            } else {
+                isPlaying = false;
+                btn.textContent = '🎵';
+                btn.classList.remove('playing');
+                visualizer.classList.remove('active');
+                if (musicTimeout) clearTimeout(musicTimeout);
+            }
+        }
+
+        // Add ambient drone that always plays softly when music is on
+        function startAmbient() {
+            if (!audioCtx || !isPlaying) return;
+
+            // Subtle bass drone
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            const filter = audioCtx.createBiquadFilter();
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(notes.A2, audioCtx.currentTime);
+
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(300, audioCtx.currentTime);
+
+            gain.gain.setValueAtTime(0, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.03, audioCtx.currentTime + 1);
+            gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + chordProgression.length * 3.5);
+
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(masterGain);
+
+            osc.start(audioCtx.currentTime);
+            osc.stop(audioCtx.currentTime + chordProgression.length * 3.5);
+        }
+    </script>
+</body>
+</html>
+
