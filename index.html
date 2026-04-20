@@ -4,91 +4,672 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Untukmu 🌸</title>
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; touch-action: none; }
-        body { 
-            height: 100vh; display: flex; align-items: center; justify-content: center; 
-            background: radial-gradient(circle at center, #2d1b3d 0%, #1a0a1e 100%); 
-            font-family: 'Lora', serif; color: #f0e0d0; overflow: hidden;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        .main-wrapper { width: 90%; max-width: 450px; text-align: center; }
-        
-        .letter-paper { 
-            position: relative; padding: 40px; height: 350px; 
-            background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px);
-            border: 1px solid rgba(244, 143, 177, 0.2); border-radius: 20px;
-            display: flex; align-items: center; justify-content: center;
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #1a0a1e 0%, #2d1b3d 30%, #1e1530 60%, #1a0a1e 100%);
+            font-family: 'Lora', serif;
+            overflow-x: hidden;
+            position: relative;
+            color: #f0e0d0;
         }
 
-        .stanza { 
-            position: absolute; width: 80%; opacity: 0; 
-            transition: all 0.4s ease-in-out; transform: translateX(50px);
+        .star {
+            position: fixed;
+            width: 2px;
+            height: 2px;
+            background: #fff;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: twinkle var(--dur) ease-in-out infinite;
+            animation-delay: var(--delay);
         }
-        .stanza.active { opacity: 1; transform: translateX(0); }
-        .stanza.prev { transform: translateX(-50px); }
-        
-        .accent { color: #f48fb1; font-weight: bold; }
-        
-        .dots { position: absolute; bottom: 20px; display: flex; gap: 8px; }
-        .dot { width: 8px; height: 8px; background: rgba(244, 143, 177, 0.3); border-radius: 50%; }
-        .dot.active { background: #f48fb1; }
 
-        .intro { cursor: pointer; animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.5); }
+        }
+
+        .petal {
+            position: fixed;
+            pointer-events: none;
+            opacity: 0;
+            animation: petalFall linear infinite;
+            animation-delay: var(--delay);
+            filter: drop-shadow(0 0 6px rgba(244, 143, 177, 0.4));
+        }
+
+        @keyframes petalFall {
+            0% {
+                opacity: 0;
+                transform: translateY(-20vh) translateX(0) rotate(0deg);
+            }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.3; }
+            100% {
+                opacity: 0;
+                transform: translateY(110vh) translateX(var(--drift)) rotate(360deg);
+            }
+        }
+
+        /* SoundCloud iframe hidden */
+        #sc-iframe {
+            position: fixed;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+            pointer-events: none;
+            bottom: 0;
+            left: 0;
+        }
+
+        /* Music button */
+        .music-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid rgba(244, 143, 177, 0.4);
+            background: rgba(45, 27, 61, 0.8);
+            backdrop-filter: blur(10px);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            color: #f48fb1;
+            font-size: 1.3rem;
+        }
+
+        .music-btn:hover {
+            border-color: #f48fb1;
+            background: rgba(194, 24, 91, 0.3);
+            transform: scale(1.1);
+        }
+
+        .music-btn.playing {
+            animation: musicPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes musicPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(244, 143, 177, 0.3); }
+            50% { box-shadow: 0 0 0 12px rgba(244, 143, 177, 0); }
+        }
+
+        /* Song info toast */
+        .song-info {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: rgba(45, 27, 61, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(244, 143, 177, 0.2);
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 0.75rem;
+            color: rgba(240, 224, 208, 0.7);
+            max-width: 200px;
+            text-align: right;
+            opacity: 0;
+            transform: translateY(-8px);
+            transition: all 0.4s ease;
+            pointer-events: none;
+            z-index: 999;
+            line-height: 1.5;
+        }
+
+        .song-info.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .song-info .song-title {
+            color: #f48fb1;
+            font-style: italic;
+            font-size: 0.8rem;
+        }
+
+        /* Loading indicator */
+        .loading-dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background: #f48fb1;
+            border-radius: 50%;
+            animation: loadBounce 1s ease-in-out infinite;
+            margin: 0 2px;
+        }
+        .loading-dot:nth-child(2) { animation-delay: 0.15s; }
+        .loading-dot:nth-child(3) { animation-delay: 0.3s; }
+
+        @keyframes loadBounce {
+            0%, 100% { opacity: 0.3; transform: scale(0.7); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+
+        /* Main content */
+        .main-wrapper {
+            width: 100%;
+            max-width: 700px;
+            padding: 40px 20px 80px;
+            position: relative;
+        }
+
+        .intro-section {
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.6s ease;
+        }
+
+        .intro-section.hidden {
+            display: none;
+        }
+
+        .envelope-icon {
+            font-size: 5rem;
+            animation: envelopeFloat 3s ease-in-out infinite;
+            filter: drop-shadow(0 10px 30px rgba(244, 143, 177, 0.3));
+        }
+
+        @keyframes envelopeFloat {
+            0%, 100% { transform: translateY(0) rotate(-3deg); }
+            50% { transform: translateY(-15px) rotate(3deg); }
+        }
+
+        .intro-text {
+            margin-top: 25px;
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.5rem;
+            color: #f48fb1;
+            opacity: 0.8;
+        }
+
+        .intro-sub {
+            margin-top: 10px;
+            font-size: 0.85rem;
+            color: rgba(240, 224, 208, 0.4);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.7; }
+        }
+
+        .letter-section {
+            display: none;
+        }
+
+        .letter-section.show {
+            display: block;
+            animation: revealLetter 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        @keyframes revealLetter {
+            from {
+                opacity: 0;
+                transform: translateY(40px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .letter-paper {
+            position: relative;
+            padding: 50px 40px;
+            background: linear-gradient(180deg,
+                rgba(45, 27, 61, 0.6) 0%,
+                rgba(30, 21, 48, 0.7) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(244, 143, 177, 0.15);
+            border-radius: 12px;
+            box-shadow:
+                0 20px 60px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(244, 143, 177, 0.1);
+        }
+
+        .letter-paper::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            bottom: 15px;
+            border: 1px solid rgba(244, 143, 177, 0.08);
+            border-radius: 6px;
+            pointer-events: none;
+        }
+
+        .letter-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .letter-header h1 {
+            font-family: 'Dancing Script', cursive;
+            font-size: 2.5rem;
+            color: #f48fb1;
+            font-weight: 700;
+            margin-bottom: 8px;
+            opacity: 0;
+            animation: fadeSlideIn 0.6s ease 0.3s forwards;
+        }
+
+        .letter-header .sub {
+            font-size: 0.85rem;
+            color: rgba(240, 224, 208, 0.5);
+            font-style: italic;
+            opacity: 0;
+            animation: fadeSlideIn 0.6s ease 0.5s forwards;
+        }
+
+        .letter-header .divider {
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            opacity: 0;
+            animation: fadeSlideIn 0.6s ease 0.6s forwards;
+        }
+
+        .letter-header .divider span {
+            font-size: 1.2rem;
+        }
+
+        .letter-header .divider::before,
+        .letter-header .divider::after {
+            content: '';
+            width: 60px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(244, 143, 177, 0.4), transparent);
+        }
+
+        .stanza {
+            margin-bottom: 30px;
+            opacity: 0;
+            animation: fadeSlideIn 0.8s ease forwards;
+        }
+
+        .stanza p {
+            font-size: 1.05rem;
+            line-height: 2;
+            color: rgba(240, 224, 208, 0.85);
+            font-style: italic;
+            text-align: center;
+        }
+
+        .stanza .accent {
+            color: #f48fb1;
+            font-weight: 600;
+            font-style: normal;
+        }
+
+        @keyframes fadeSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .letter-closing {
+            text-align: right;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(244, 143, 177, 0.15);
+            opacity: 0;
+            animation: fadeSlideIn 0.6s ease forwards;
+        }
+
+        .letter-closing .for {
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.4rem;
+            color: #f48fb1;
+            margin-bottom: 5px;
+        }
+
+        .letter-closing .desc {
+            font-size: 0.85rem;
+            color: rgba(240, 224, 208, 0.5);
+            font-style: italic;
+            margin-bottom: 15px;
+        }
+
+        .letter-closing .signature {
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.6rem;
+            color: #ce93d8;
+            font-weight: 700;
+        }
+
+        /* Music visualizer */
+        .music-visualizer {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 3px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .music-visualizer.active {
+            opacity: 1;
+        }
+
+        .music-bar {
+            width: 3px;
+            height: 8px;
+            background: #f48fb1;
+            border-radius: 2px;
+            animation: musicBar 0.8s ease-in-out infinite alternate;
+            animation-delay: var(--delay);
+        }
+
+        @keyframes musicBar {
+            from { height: 4px; opacity: 0.4; }
+            to { height: 16px; opacity: 1; }
+        }
+
+        .glow {
+            position: fixed;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(244, 143, 177, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        @media (max-width: 600px) {
+            .letter-paper {
+                padding: 35px 20px;
+            }
+            .letter-header h1 {
+                font-size: 2rem;
+            }
+            .stanza p {
+                font-size: 0.95rem;
+                line-height: 1.9;
+            }
+            .letter-closing .signature {
+                font-size: 1.3rem;
+            }
+            .envelope-icon {
+                font-size: 4rem;
+            }
+            .song-info {
+                max-width: 160px;
+                font-size: 0.7rem;
+            }
+        }
     </style>
 </head>
 <body>
 
-    <div class="main-wrapper" id="app">
-        <div class="intro" id="intro" onclick="startReading()">
-            <div style="font-size: 4rem;">💌</div>
-            <p>Sentuh untuk membaca</p>
+    <!-- Hidden SoundCloud iframe -->
+    <iframe id="sc-iframe"
+        src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/awfulpianosound/yiruma-river-flows-in-you&color=%23f48fb1&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false&visual=false"
+        allow="autoplay">
+    </iframe>
+
+    <!-- SoundCloud Widget API -->
+    <script src="https://w.soundcloud.com/player/api.js"></script>
+
+    <button class="music-btn" id="musicBtn" onclick="toggleMusic()" title="Nyalakan musik">
+        🎵
+    </button>
+
+    <!-- Song info tooltip -->
+    <div class="song-info" id="songInfo">
+        <div class="song-title">River Flows in You</div>
+        <div>Yiruma</div>
+    </div>
+
+    <div class="glow"></div>
+
+    <div class="main-wrapper">
+        <!-- Intro -->
+        <div class="intro-section" id="introSection" onclick="openLetter()">
+            <div class="envelope-icon">💌</div>
+            <p class="intro-text">Ada sesuatu untukmu...</p>
+            <p class="intro-sub">ketuk untuk membuka</p>
         </div>
 
-        <div id="carousel" style="display: none;">
-            <div class="letter-paper" id="paper">
-                <div class="stanza active"><p>Pertama kali kulihat <span class="accent">senyummu</span>,<br>Aku tahu ada badai di balik tawamu.</p></div>
-                <div class="stanza"><p>Bahumu yang kecil menanggung langit,<br>Namun caramu melangkah tak pernah sakit.</p></div>
-                <div class="stanza"><p>Aku <span class="accent">kagum</span>, lebih dari sekadar cinta,<br>Melihatmu berjuang dengan senyum di muka.</p></div>
-                <div class="stanza"><p>Kau adalah <span class="accent">rumah</span> yang selalu ingin kuhuni.<br>— RZY</p></div>
-                
-                <div class="dots">
-                    <div class="dot active"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+        <!-- Letter -->
+        <div class="letter-section" id="letterSection">
+            <div class="letter-paper">
+                <div class="letter-header">
+                    <h1>Untukmu</h1>
+                    <p class="sub">sebuah surat dari hati yang paling dalam</p>
+                    <div class="divider"><span>🌸</span></div>
+                </div>
+
+                <div class="stanza" style="animation-delay: 0.4s;">
+                    <p>
+                        Pertama kali kulihat <span class="accent">senyummu</span>,<br>
+                        Aku tahu ada badai di balik tawamu,<br>
+                        Matamu cantik menyimpan seribu cerita,<br>
+                        Tentang luka yang kau rawat dalam diam saja.
+                    </p>
+                </div>
+
+                <div class="stanza" style="animation-delay: 0.8s;">
+                    <p>
+                        Bahumu yang kecil menanggung langit,<br>
+                        Namun caramu melangkah tak pernah sakit,<br>
+                        Tangan mungilmu yang muat di genggamanku itu,<br>
+                        Adalah tangan paling kuat yang pernah aku tahu.
+                    </p>
+                </div>
+
+                <div class="stanza" style="animation-delay: 1.2s;">
+                    <p>
+                        Aku <span class="accent">kagum</span>, lebih dari sekadar cinta,<br>
+                        Melihatmu berjuang dengan senyum di muka,<br>
+                        Tidak ada keluhan yang kau biarkan jatuh,<br>
+                        Hanya tekad perempuan yang sungguh teguh.
+                    </p>
+                </div>
+
+                <div class="stanza" style="animation-delay: 1.6s;">
+                    <p>
+                        Cantikmu bukan hanya yang tertangkap mata,<br>
+                        Tapi dari caramu mencinta tanpa meminta,<br>
+                        Lucumu adalah pelariku dari lelah dunia,<br>
+                        Dan kekuatanmu membuatku ingin selalu ada.
+                    </p>
+                </div>
+
+                <div class="stanza" style="animation-delay: 2s;">
+                    <p>
+                        Izinkan aku menjadi tempat kau <span class="accent">bersandar</span>,<br>
+                        Menjadi tangan yang meringankan bebanmu itu,<br>
+                        Bukan karena kasihan, tapi karena aku sadar —<br>
+                        Perempuan sepertimu layak dicintai seutuhnya.
+                    </p>
+                </div>
+
+                <div class="stanza" style="animation-delay: 2.4s;">
+                    <p>
+                        Kau tidak perlu lagi berjalan sendiri,<br>
+                        Aku di sini, bukan untuk mengganti siapapun,<br>
+                        Hanya ingin menemanimu setiap hari,<br>
+                        Karena kau adalah <span class="accent">rumah</span> yang selalu ingin kuhuni.
+                    </p>
+                </div>
+
+                <div class="letter-closing" style="animation-delay: 2.8s;">
+                    <p class="for">Untuk kamu — yang kuat, yang cantik, yang kuat</p>
+                    <p class="desc">🌸</p>
+                    <p class="signature">— RZY</p>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Music visualizer -->
+    <div class="music-visualizer" id="musicVisualizer">
+        <div class="music-bar" style="--delay: 0s"></div>
+        <div class="music-bar" style="--delay: 0.1s"></div>
+        <div class="music-bar" style="--delay: 0.2s"></div>
+        <div class="music-bar" style="--delay: 0.3s"></div>
+        <div class="music-bar" style="--delay: 0.4s"></div>
+        <div class="music-bar" style="--delay: 0.3s"></div>
+        <div class="music-bar" style="--delay: 0.2s"></div>
+        <div class="music-bar" style="--delay: 0.1s"></div>
+    </div>
+
     <script>
-        let cur = 0;
-        const stanzas = document.querySelectorAll('.stanza');
-        const dots = document.querySelectorAll('.dot');
-        let touchX = 0;
+        // Stars
+        function createStars() {
+            for (let i = 0; i < 80; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.setProperty('--dur', (2 + Math.random() * 4) + 's');
+                star.style.setProperty('--delay', (Math.random() * 4) + 's');
+                const size = (1 + Math.random() * 2) + 'px';
+                star.style.width = size;
+                star.style.height = size;
+                document.body.appendChild(star);
+            }
+        }
+        createStars();
 
-        function startReading() {
-            document.getElementById('intro').style.display = 'none';
-            document.getElementById('carousel').style.display = 'block';
+        // Petals
+        function createPetals() {
+            const petalShapes = ['🌸', '🩷', '✿'];
+            for (let i = 0; i < 12; i++) {
+                const petal = document.createElement('div');
+                petal.className = 'petal';
+                petal.textContent = petalShapes[Math.floor(Math.random() * petalShapes.length)];
+                petal.style.left = Math.random() * 100 + '%';
+                petal.style.fontSize = (12 + Math.random() * 14) + 'px';
+                petal.style.setProperty('--delay', (Math.random() * 15) + 's');
+                petal.style.setProperty('--drift', (Math.random() - 0.5) * 100 + 'px');
+                petal.style.animationDuration = (8 + Math.random() * 12) + 's';
+                document.body.appendChild(petal);
+            }
+        }
+        createPetals();
+
+        // SoundCloud Widget
+        let widget = null;
+        let isPlaying = false;
+        let scReady = false;
+
+        function initSC() {
+            widget = SC.Widget(document.getElementById('sc-iframe'));
+            widget.bind(SC.Widget.Events.READY, function() {
+                scReady = true;
+                widget.setVolume(70);
+            });
+            widget.bind(SC.Widget.Events.FINISH, function() {
+                // Loop: seek to start and play again
+                widget.seekTo(0);
+                widget.play();
+            });
+            widget.bind(SC.Widget.Events.ERROR, function() {
+                console.warn('SoundCloud: gagal memuat lagu.');
+                scReady = false;
+            });
         }
 
-        function updateSlide(next) {
-            stanzas[cur].className = 'stanza ' + (next ? 'prev' : '');
-            dots[cur].classList.remove('active');
-            
-            cur = next ? (cur + 1) % stanzas.length : (cur - 1 + stanzas.length) % stanzas.length;
-            
-            stanzas[cur].className = 'stanza active';
-            dots[cur].classList.add('active');
-        }
-
-        // Swipe Logic
-        const paper = document.getElementById('paper');
-        paper.addEventListener('touchstart', e => touchX = e.touches[0].clientX);
-        paper.addEventListener('touchend', e => {
-            let diff = e.changedTouches[0].clientX - touchX;
-            if (Math.abs(diff) > 50) updateSlide(diff < 0);
+        // Init SC widget after page load
+        window.addEventListener('load', function() {
+            if (typeof SC !== 'undefined') {
+                initSC();
+            }
         });
+
+        function showSongInfo(show) {
+            const info = document.getElementById('songInfo');
+            if (show) {
+                info.classList.add('show');
+            } else {
+                info.classList.remove('show');
+            }
+        }
+
+        function toggleMusic() {
+            const btn = document.getElementById('musicBtn');
+            const visualizer = document.getElementById('musicVisualizer');
+
+            if (!isPlaying) {
+                if (!widget) {
+                    if (typeof SC !== 'undefined') initSC();
+                }
+
+                // Show loading state
+                btn.innerHTML = '<span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span>';
+
+                setTimeout(function() {
+                    if (widget && scReady) {
+                        widget.play();
+                        isPlaying = true;
+                        btn.textContent = '🎶';
+                        btn.classList.add('playing');
+                        visualizer.classList.add('active');
+                        showSongInfo(true);
+                        setTimeout(function() { showSongInfo(false); }, 4000);
+                    } else {
+                        // SC not loaded yet, try again
+                        btn.textContent = '🎵';
+                        btn.title = 'Musik belum siap, coba lagi';
+                    }
+                }, 1200);
+
+            } else {
+                widget.pause();
+                isPlaying = false;
+                btn.textContent = '🎵';
+                btn.classList.remove('playing');
+                visualizer.classList.remove('active');
+                showSongInfo(false);
+            }
+        }
+
+        // Open letter
+        function openLetter() {
+            const intro = document.getElementById('introSection');
+            const letter = document.getElementById('letterSection');
+
+            intro.style.transition = 'all 0.5s ease';
+            intro.style.opacity = '0';
+            intro.style.transform = 'scale(0.9) translateY(-20px)';
+s
+            setTimeout(function() {
+                intro.classList.add('hidden');
+                letter.classList.add('show');
+                if (!isPlaying) {
+                    toggleMusic();
+                }
+            }, 500);
+        }
     </script>
 </body>
 </html>
