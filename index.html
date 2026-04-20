@@ -2,11 +2,13 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Untukmu 🌸</title>
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; }
 
         body {
             min-height: 100vh;
@@ -18,25 +20,29 @@
             overflow: hidden;
             position: relative;
             color: #f0e0d0;
-            touch-action: pan-y;
+            touch-action: manipulation;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* ✨ Stars & 🌸 Petals (sama seperti sebelumnya) */
+        /* ✨ Stars */
         .star {
             position: fixed; width: 2px; height: 2px; background: #fff;
             border-radius: 50%; pointer-events: none;
             animation: twinkle var(--dur) ease-in-out infinite;
             animation-delay: var(--delay);
+            will-change: opacity, transform;
         }
         @keyframes twinkle {
             0%, 100% { opacity: 0.2; transform: scale(1); }
             50% { opacity: 1; transform: scale(1.5); }
         }
 
+        /* 🌸 Petals */
         .petal {
             position: fixed; pointer-events: none; opacity: 0;
             animation: petalFall linear infinite; animation-delay: var(--delay);
             filter: drop-shadow(0 0 6px rgba(244, 143, 177, 0.4));
+            will-change: transform, opacity;
         }
         @keyframes petalFall {
             0% { opacity: 0; transform: translateY(-20vh) translateX(0) rotate(0deg); }
@@ -56,36 +62,41 @@
             position: fixed; top: 20px; right: 20px; z-index: 1000;
             width: 50px; height: 50px; border-radius: 50%;
             border: 2px solid rgba(244, 143, 177, 0.4);
-            background: rgba(45, 27, 61, 0.8);
-            backdrop-filter: blur(10px); cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
+            background: rgba(45, 27, 61, 0.85);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
             transition: all 0.3s ease; color: #f48fb1; font-size: 1.3rem;
+            -webkit-appearance: none; appearance: none;
         }
         .music-btn:hover {
-            border-color: #f48fb1; background: rgba(194, 24, 91, 0.3);
-            transform: scale(1.1);
+            border-color: #f48fb1; background: rgba(194, 24, 91, 0.35);
+            transform: scale(1.08);
         }
+        .music-btn:active { transform: scale(0.95); }
         .music-btn.playing { animation: musicPulse 2s ease-in-out infinite; }
+        .music-btn:disabled { opacity: 0.6; cursor: wait; transform: none !important; }
+        
         @keyframes musicPulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(244, 143, 177, 0.3); }
-            50% { box-shadow: 0 0 0 12px rgba(244, 143, 177, 0); }
+            0%, 100% { box-shadow: 0 0 0 0 rgba(244, 143, 177, 0.35); }
+            50% { box-shadow: 0 0 0 14px rgba(244, 143, 177, 0); }
         }
 
         /* 🎼 Song Info */
         .song-info {
             position: fixed; top: 80px; right: 20px;
-            background: rgba(45, 27, 61, 0.9); backdrop-filter: blur(10px);
-            border: 1px solid rgba(244, 143, 177, 0.2); border-radius: 10px;
-            padding: 10px 14px; font-size: 0.75rem;
-            color: rgba(240, 224, 208, 0.7); max-width: 200px;
-            text-align: right; opacity: 0; transform: translateY(-8px);
-            transition: all 0.4s ease; pointer-events: none; z-index: 999;
-            line-height: 1.5;
+            background: rgba(45, 27, 61, 0.92); backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(244, 143, 177, 0.25); border-radius: 12px;
+            padding: 12px 16px; font-size: 0.75rem;
+            color: rgba(240, 224, 208, 0.85); max-width: 220px;
+            text-align: right; opacity: 0; transform: translateY(-10px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none; z-index: 999; line-height: 1.6;
         }
         .song-info.show { opacity: 1; transform: translateY(0); }
-        .song-info .song-title { color: #f48fb1; font-style: italic; font-size: 0.8rem; }
+        .song-info .song-title { color: #f48fb1; font-style: italic; font-size: 0.85rem; font-weight: 600; }
 
-        /* ⏳ Loading */
+        /* ⏳ Loading Dots */
         .loading-dot {
             display: inline-block; width: 6px; height: 6px;
             background: #f48fb1; border-radius: 50%;
@@ -100,236 +111,300 @@
 
         /* 📦 Main Wrapper */
         .main-wrapper {
-            width: 100%; max-width: 700px; padding: 40px 20px 100px;
+            width: 100%; max-width: 700px; padding: 40px 20px 110px;
             position: relative; display: flex; flex-direction: column;
             align-items: center;
         }
 
         /* ✉️ Intro Section */
         .intro-section {
-            text-align: center; cursor: pointer; transition: all 0.6s ease;
-            width: 100%; max-width: 500px;
+            text-align: center; cursor: pointer; transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 100%; max-width: 500px; padding: 20px;
         }
         .intro-section.hidden { display: none; }
         .envelope-icon {
             font-size: 5rem; animation: envelopeFloat 3s ease-in-out infinite;
-            filter: drop-shadow(0 10px 30px rgba(244, 143, 177, 0.3));
+            filter: drop-shadow(0 12px 35px rgba(244, 143, 177, 0.35));
+            user-select: none;
         }
         @keyframes envelopeFloat {
-            0%, 100% { transform: translateY(0) rotate(-3deg); }
-            50% { transform: translateY(-15px) rotate(3deg); }
+            0%, 100% { transform: translateY(0) rotate(-2deg); }
+            50% { transform: translateY(-18px) rotate(2deg); }
         }
         .intro-text {
-            margin-top: 25px; font-family: 'Dancing Script', cursive;
-            font-size: 1.5rem; color: #f48fb1; opacity: 0.8;
+            margin-top: 28px; font-family: 'Dancing Script', cursive;
+            font-size: 1.6rem; color: #f48fb1; opacity: 0.85;
         }
         .intro-sub {
-            margin-top: 10px; font-size: 0.85rem;
-            color: rgba(240, 224, 208, 0.4);
-            animation: pulse 2s ease-in-out infinite;
+            margin-top: 12px; font-size: 0.9rem;
+            color: rgba(240, 224, 208, 0.45);
+            animation: pulse 2.2s ease-in-out infinite;
         }
-        @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.7; } }
+        @keyframes pulse { 0%, 100% { opacity: 0.35; } 50% { opacity: 0.75; } }
 
-        /* 🎠 Carousel Container */
-        .carousel-wrapper {
-            display: none; width: 100%; position: relative;
-        }
-        .carousel-wrapper.show { display: block; }
+        /* 🎠 Carousel */
+        .carousel-wrapper { display: none; width: 100%; position: relative; }
+        .carousel-wrapper.show { display: block; animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         .carousel {
-            position: relative; width: 100%; height: auto;
-            overflow: hidden; border-radius: 12px;
+            position: relative; width: 100%; overflow: hidden;
+            border-radius: 16px; touch-action: pan-y;
         }
 
         .carousel-track {
             display: flex; transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-            width: 100%;
+            width: 100%; will-change: transform;
         }
 
         .slide {
-            min-width: 100%; padding: 40px 30px;
-            background: linear-gradient(180deg, rgba(45, 27, 61, 0.6) 0%, rgba(30, 21, 48, 0.7) 100%);
-            backdrop-filter: blur(20px); border: 1px solid rgba(244, 143, 177, 0.15);
-            border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.4),
-            inset 0 1px 0 rgba(244, 143, 177, 0.1);
-            display: flex; flex-direction: column; justify-content: center;
-            opacity: 0; transition: opacity 0.4s ease;
+            min-width: 100%; padding: 45px 35px 50px;
+            background: linear-gradient(180deg, rgba(45, 27, 61, 0.65) 0%, rgba(30, 21, 48, 0.75) 100%);
+            backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px);
+            border: 1px solid rgba(244, 143, 177, 0.18);
+            border-radius: 16px;
+            box-shadow: 0 25px 70px rgba(0,0,0,0.45), inset 0 1px 0 rgba(244, 143, 177, 0.12);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            opacity: 0.3; transition: opacity 0.4s ease;
+            position: relative;
         }
-        .slide.active { opacity: 1; }
-
         .slide::before {
-            content: ''; position: absolute; top: 15px; left: 15px; right: 15px; bottom: 15px;
-            border: 1px solid rgba(244, 143, 177, 0.08); border-radius: 6px; pointer-events: none;
+            content: ''; position: absolute; top: 18px; left: 18px; right: 18px; bottom: 18px;
+            border: 1px solid rgba(244, 143, 177, 0.1); border-radius: 10px; pointer-events: none;
         }
+        .slide.active { opacity: 1; z-index: 2; }
 
         /* 📝 Slide Content */
-        .slide-header {
-            text-align: center; margin-bottom: 25px;
-        }
+        .slide-header { text-align: center; margin-bottom: 28px; width: 100%; }
         .slide-header h1 {
-            font-family: 'Dancing Script', cursive; font-size: 2.2rem;
-            color: #f48fb1; font-weight: 700; margin-bottom: 5px;
+            font-family: 'Dancing Script', cursive; font-size: 2.3rem;
+            color: #f48fb1; font-weight: 700; margin-bottom: 6px;
+            text-shadow: 0 2px 10px rgba(244, 143, 177, 0.2);
         }
         .slide-header .sub {
-            font-size: 0.8rem; color: rgba(240, 224, 208, 0.5);
-            font-style: italic;
+            font-size: 0.85rem; color: rgba(240, 224, 208, 0.55);
+            font-style: italic; line-height: 1.5;
         }
         .slide-header .divider {
-            margin-top: 15px; display: flex; align-items: center;
-            justify-content: center; gap: 10px;
+            margin-top: 18px; display: flex; align-items: center; justify-content: center; gap: 12px;
         }
         .slide-header .divider::before,
         .slide-header .divider::after {
-            content: ''; width: 50px; height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(244, 143, 177, 0.4), transparent);
+            content: ''; width: 55px; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(244, 143, 177, 0.5), transparent);
         }
 
         .slide-content {
-            text-align: center; font-size: 1.1rem; line-height: 2.1;
-            color: rgba(240, 224, 208, 0.9); font-style: italic;
+            text-align: center; font-size: 1.15rem; line-height: 2.2;
+            color: rgba(240, 224, 208, 0.92); font-style: italic;
+            max-width: 520px; padding: 0 10px;
         }
         .slide-content .accent {
             color: #f48fb1; font-weight: 600; font-style: normal;
+            text-shadow: 0 0 15px rgba(244, 143, 177, 0.3);
         }
 
         /* 🏁 Closing Slide */
         .slide-closing {
-            text-align: right; margin-top: 20px;
-            padding-top: 25px; border-top: 1px solid rgba(244, 143, 177, 0.15);
+            text-align: right; margin-top: 25px; width: 100%;
+            padding-top: 28px; border-top: 1px solid rgba(244, 143, 177, 0.18);
         }
         .slide-closing .for {
-            font-family: 'Dancing Script', cursive; font-size: 1.3rem;
-            color: #f48fb1; margin-bottom: 3px;
+            font-family: 'Dancing Script', cursive; font-size: 1.35rem;
+            color: #f48fb1; margin-bottom: 4px;
         }
         .slide-closing .desc {
-            font-size: 0.8rem; color: rgba(240, 224, 208, 0.5);
-            font-style: italic; margin-bottom: 10px;
+            font-size: 0.85rem; color: rgba(240, 224, 208, 0.55);
+            font-style: italic; margin-bottom: 12px;
         }
         .slide-closing .signature {
-            font-family: 'Dancing Script', cursive; font-size: 1.5rem;
+            font-family: 'Dancing Script', cursive; font-size: 1.6rem;
             color: #ce93d8; font-weight: 700;
         }
 
-        /* 🔘 Navigation Buttons */
+        /* 🔘 Navigation */
         .carousel-nav {
-            display: flex; justify-content: space-between;
-            margin-top: 20px; width: 100%; max-width: 500px;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-top: 22px; width: 100%; max-width: 520px; padding: 0 10px;
         }
         .nav-btn {
-            width: 45px; height: 45px; border-radius: 50%;
-            border: 2px solid rgba(244, 143, 177, 0.4);
-            background: rgba(45, 27, 61, 0.8);
-            backdrop-filter: blur(10px); color: #f48fb1;
-            font-size: 1.2rem; cursor: pointer;
+            width: 48px; height: 48px; border-radius: 50%;
+            border: 2px solid rgba(244, 143, 177, 0.45);
+            background: rgba(45, 27, 61, 0.85);
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            color: #f48fb1; font-size: 1.25rem; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
-            transition: all 0.3s ease;
+            transition: all 0.25s ease; -webkit-appearance: none; appearance: none;
+            user-select: none;
         }
         .nav-btn:hover:not(:disabled) {
-            border-color: #f48fb1; background: rgba(194, 24, 91, 0.3);
-            transform: scale(1.05);
+            border-color: #f48fb1; background: rgba(194, 24, 91, 0.35);
+            transform: scale(1.08);
         }
+        .nav-btn:active:not(:disabled) { transform: scale(0.95); }
         .nav-btn:disabled {
-            opacity: 0.3; cursor: not-allowed; transform: none;
+            opacity: 0.35; cursor: not-allowed; transform: none; border-color: rgba(244, 143, 177, 0.2);
         }
 
-        /* 🔘 Dots Indicator */
+        /* 🔘 Dots */
         .carousel-dots {
-            display: flex; gap: 8px; margin-top: 18px;
-            justify-content: center;
+            display: flex; gap: 9px; margin-top: 20px; justify-content: center; flex-wrap: wrap;
         }
         .dot {
-            width: 10px; height: 10px; border-radius: 50%;
-            background: rgba(244, 143, 177, 0.3);
-            border: 2px solid rgba(244, 143, 177, 0.5);
+            width: 11px; height: 11px; border-radius: 50%;
+            background: rgba(244, 143, 177, 0.35);
+            border: 2px solid rgba(244, 143, 177, 0.55);
             cursor: pointer; transition: all 0.3s ease;
+            -webkit-appearance: none; appearance: none;
         }
+        .dot:hover { background: rgba(244, 143, 177, 0.5); transform: scale(1.1); }
         .dot.active {
-            background: #f48fb1; transform: scale(1.2);
-            box-shadow: 0 0 10px rgba(244, 143, 177, 0.5);
+            background: #f48fb1; transform: scale(1.25);
+            box-shadow: 0 0 12px rgba(244, 143, 177, 0.6);
+            border-color: #f48fb1;
         }
 
         /* 🎼 Visualizer */
         .music-visualizer {
-            position: fixed; bottom: 20px; left: 50%;
-            transform: translateX(-50%); display: flex; gap: 3px;
-            opacity: 0; transition: opacity 0.5s ease;
+            position: fixed; bottom: 25px; left: 50%;
+            transform: translateX(-50%); display: flex; gap: 4px;
+            opacity: 0; transition: opacity 0.5s ease; pointer-events: none;
+            z-index: 100;
         }
         .music-visualizer.active { opacity: 1; }
         .music-bar {
-            width: 3px; height: 8px; background: #f48fb1;
-            border-radius: 2px; animation: musicBar 0.8s ease-in-out infinite alternate;
+            width: 4px; height: 10px; background: linear-gradient(to top, #f48fb1, #ce93d8);
+            border-radius: 3px; animation: musicBar 0.9s ease-in-out infinite alternate;
             animation-delay: var(--delay);
         }
         @keyframes musicBar {
-            from { height: 4px; opacity: 0.4; }
-            to { height: 16px; opacity: 1; }
+            from { height: 5px; opacity: 0.5; }
+            to { height: 22px; opacity: 1; }
         }
 
-        /* ✨ Glow Effect */
+        /* ✨ Glow */
         .glow {
-            position: fixed; width: 400px; height: 400px; border-radius: 50%;
-            background: radial-gradient(circle, rgba(244, 143, 177, 0.08) 0%, transparent 70%);
+            position: fixed; width: 450px; height: 450px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(244, 143, 177, 0.1) 0%, transparent 72%);
             pointer-events: none; top: 50%; left: 50%;
             transform: translate(-50%, -50%);
+            animation: glowPulse 4s ease-in-out infinite;
         }
+        @keyframes glowPulse {
+            0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.9; transform: translate(-50%, -50%) scale(1.05); }
+        }
+
+        /* 🔊 iOS Hint */
+        .ios-hint {
+            position: fixed; bottom: 85px; left: 50%;
+            transform: translateX(-50%) translateY(15px);
+            background: rgba(45, 27, 61, 0.96);
+            backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(244, 143, 177, 0.35);
+            border-radius: 14px; padding: 14px 22px;
+            font-size: 0.82rem; color: rgba(240, 224, 208, 0.92);
+            max-width: 300px; text-align: center;
+            opacity: 0; pointer-events: none; transition: all 0.4s ease;
+            z-index: 997; line-height: 1.6;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        .ios-hint.show {
+            opacity: 1; transform: translateX(-50%) translateY(0);
+        }
+        .ios-hint .emoji { font-size: 1.3rem; margin-right: 6px; vertical-align: middle; }
+        .ios-hint ul {
+            text-align: left; margin-top: 8px; padding-left: 18px;
+            font-size: 0.78rem; opacity: 0.9;
+        }
+        .ios-hint li { margin: 3px 0; }
 
         /* 📱 Responsive */
         @media (max-width: 600px) {
-            .slide { padding: 30px 20px; }
-            .slide-header h1 { font-size: 1.8rem; }
-            .slide-content { font-size: 1rem; line-height: 2; }
-            .slide-closing .signature { font-size: 1.3rem; }
-            .envelope-icon { font-size: 4rem; }
-            .song-info { max-width: 160px; font-size: 0.7rem; }
-            .nav-btn { width: 40px; height: 40px; font-size: 1rem; }
+            .slide { padding: 38px 25px 42px; }
+            .slide-header h1 { font-size: 2rem; }
+            .slide-content { font-size: 1.05rem; line-height: 2.1; }
+            .slide-closing .signature { font-size: 1.4rem; }
+            .envelope-icon { font-size: 4.2rem; }
+            .intro-text { font-size: 1.45rem; }
+            .song-info { max-width: 180px; font-size: 0.72rem; right: 15px; top: 75px; }
+            .nav-btn { width: 44px; height: 44px; font-size: 1.1rem; }
+            .music-btn { width: 46px; height: 46px; font-size: 1.2rem; top: 15px; right: 15px; }
+            .ios-hint { max-width: 260px; font-size: 0.78rem; bottom: 80px; }
+        }
+
+        @media (max-width: 400px) {
+            .slide-content { font-size: 1rem; }
+            .slide-header h1 { font-size: 1.85rem; }
+            .carousel-dots { gap: 7px; }
+            .dot { width: 10px; height: 10px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Hidden SoundCloud iframe -->
+    <!-- 🔇 Hidden SoundCloud iframe with iOS-compatible attributes -->
     <iframe id="sc-iframe"
-        src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/awfulpianosound/yiruma-river-flows-in-you&color=%23f48fb1&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_reposts=false&show_teaser=false&visual=false"
-        allow="autoplay">
+        src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/awfulpianosound/yiruma-river-flows-in-you&color=%23f48fb1&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false&visual=false"
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+        sandbox="allow-scripts allow-same-origin allow-popups allow-presentation allow-forms"
+        title="Background Music">
     </iframe>
+
+    <!-- SoundCloud Widget API -->
     <script src="https://w.soundcloud.com/player/api.js"></script>
 
-    <button class="music-btn" id="musicBtn" onclick="toggleMusic()" title="Nyalakan musik">🎵</button>
+    <!-- 🎵 Music Button -->
+    <button class="music-btn" id="musicBtn" onclick="toggleMusic()" title="Nyalakan musik" aria-label="Toggle music">
+        🎵
+    </button>
 
-    <div class="song-info" id="songInfo">
+    <!-- 🎼 Song Info -->
+    <div class="song-info" id="songInfo" aria-live="polite">
         <div class="song-title">River Flows in You</div>
         <div>Yiruma</div>
     </div>
 
+    <!-- ✨ Glow Effect -->
     <div class="glow"></div>
 
+    <!-- 🔊 iOS Hint -->
+    <div class="ios-hint" id="iosHint" role="status">
+        <span class="emoji">🔊</span> Audio tidak muncul?<br>
+        <ul>
+            <li>• Pastikan <strong>silent switch</strong> tidak aktif</li>
+            <li>• Cek volume di Control Center</li>
+            <li>• Ketuk tombol 🎵 sekali lagi</li>
+        </ul>
+    </div>
+
     <div class="main-wrapper">
-        <!-- Intro -->
-        <div class="intro-section" id="introSection" onclick="openLetter()">
-            <div class="envelope-icon">💌</div>
+        <!-- ✉️ Intro -->
+        <div class="intro-section" id="introSection" onclick="openLetter()" role="button" tabindex="0">
+            <div class="envelope-icon" aria-hidden="true">💌</div>
             <p class="intro-text">Ada sesuatu untukmu...</p>
             <p class="intro-sub">ketuk untuk membuka</p>
         </div>
 
-        <!-- Carousel Letter -->
+        <!-- 🎠 Carousel Letter -->
         <div class="carousel-wrapper" id="carouselWrapper">
-            <div class="carousel">
-                <div class="carousel-track" id="carouselTrack">
+            <div class="carousel" id="carousel" role="region" aria-label="Surat carousel" aria-roledescription="carousel">
+                <div class="carousel-track" id="carouselTrack" role="list">
                     
                     <!-- Slide 0: Header -->
-                    <div class="slide active">
+                    <div class="slide active" role="listitem" aria-label="Slide 1 dari 8">
                         <div class="slide-header">
                             <h1>Untukmu</h1>
                             <p class="sub">sebuah surat dari hati yang paling dalam</p>
                             <div class="divider"><span>🌸</span></div>
                         </div>
-                        <p class="slide-content" style="margin-top: 20px;">
-                            <em>Swipe ➡️ untuk membaca</em>
+                        <p class="slide-content" style="margin-top: 25px; font-size: 1rem;">
+                            <em>👆 Swipe atau ketuk panah untuk membaca</em>
                         </p>
                     </div>
 
                     <!-- Slide 1 -->
-                    <div class="slide">
+                    <div class="slide" role="listitem" aria-label="Slide 2 dari 8">
                         <p class="slide-content">
                             Pertama kali kulihat <span class="accent">senyummu</span>,<br>
                             Aku tahu ada badai di balik tawamu,<br>
@@ -339,7 +414,7 @@
                     </div>
 
                     <!-- Slide 2 -->
-                    <div class="slide">
+                    <div class="slide" role="listitem" aria-label="Slide 3 dari 8">
                         <p class="slide-content">
                             Bahumu yang kecil menanggung langit,<br>
                             Namun caramu melangkah tak pernah sakit,<br>
@@ -349,7 +424,7 @@
                     </div>
 
                     <!-- Slide 3 -->
-                    <div class="slide">
+                    <div class="slide" role="listitem" aria-label="Slide 4 dari 8">
                         <p class="slide-content">
                             Aku <span class="accent">kagum</span>, lebih dari sekadar cinta,<br>
                             Melihatmu berjuang dengan senyum di muka,<br>
@@ -359,7 +434,7 @@
                     </div>
 
                     <!-- Slide 4 -->
-                    <div class="slide">
+                    <div class="slide" role="listitem" aria-label="Slide 5 dari 8">
                         <p class="slide-content">
                             Cantikmu bukan hanya yang tertangkap mata,<br>
                             Tapi dari caramu mencinta tanpa meminta,<br>
@@ -369,7 +444,7 @@
                     </div>
 
                     <!-- Slide 5 -->
-                    <div class="slide">
+                    <div class="slide" role="listitem" aria-label="Slide 6 dari 8">
                         <p class="slide-content">
                             Izinkan aku menjadi tempat kau <span class="accent">bersandar</span>,<br>
                             Menjadi tangan yang meringankan bebanmu itu,<br>
@@ -379,7 +454,7 @@
                     </div>
 
                     <!-- Slide 6 -->
-                    <div class="slide">
+                    <div class="slide" role="listitem" aria-label="Slide 7 dari 8">
                         <p class="slide-content">
                             Kau tidak perlu lagi berjalan sendiri,<br>
                             Aku di sini, bukan untuk mengganti siapapun,<br>
@@ -389,8 +464,8 @@
                     </div>
 
                     <!-- Slide 7: Closing -->
-                    <div class="slide">
-                        <p class="slide-content" style="margin-bottom: 20px;">
+                    <div class="slide" role="listitem" aria-label="Slide 8 dari 8">
+                        <p class="slide-content" style="margin-bottom: 22px; font-size: 1.05rem;">
                             🌸 Terima kasih sudah menjadi dirimu 🌸
                         </p>
                         <div class="slide-closing">
@@ -403,19 +478,19 @@
                 </div>
             </div>
 
-            <!-- Navigation -->
+            <!-- 🔘 Navigation -->
             <div class="carousel-nav">
-                <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)">◀</button>
-                <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">▶</button>
+                <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)" aria-label="Slide sebelumnya" disabled>◀</button>
+                <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)" aria-label="Slide berikutnya">▶</button>
             </div>
 
-            <!-- Dots -->
-            <div class="carousel-dots" id="carouselDots"></div>
+            <!-- 🔘 Dots Indicator -->
+            <div class="carousel-dots" id="carouselDots" role="tablist" aria-label="Navigasi slide"></div>
         </div>
     </div>
 
-    <!-- Music Visualizer -->
-    <div class="music-visualizer" id="musicVisualizer">
+    <!-- 🎼 Music Visualizer -->
+    <div class="music-visualizer" id="musicVisualizer" aria-hidden="true">
         <div class="music-bar" style="--delay: 0s"></div>
         <div class="music-bar" style="--delay: 0.1s"></div>
         <div class="music-bar" style="--delay: 0.2s"></div>
@@ -427,9 +502,15 @@
     </div>
 
     <script>
-        // ========== STARS & PETALS ==========
+        // ========== 🌟 CONFIG & UTILS ==========
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        let audioUnlocked = false;
+        let widget = null, isPlaying = false, scReady = false;
+
+        // ========== ✨ STARS ==========
         function createStars() {
-            for (let i = 0; i < 80; i++) {
+            const count = window.innerWidth < 600 ? 50 : 80;
+            for (let i = 0; i < count; i++) {
                 const star = document.createElement('div');
                 star.className = 'star';
                 star.style.left = Math.random() * 100 + '%';
@@ -443,172 +524,392 @@
         }
         createStars();
 
+        // ========== 🌸 PETALS ==========
         function createPetals() {
-            const petalShapes = ['🌸', '🩷', '✿'];
-            for (let i = 0; i < 12; i++) {
+            const petalShapes = ['🌸', '🩷', '✿', '🌷'];
+            const count = window.innerWidth < 600 ? 8 : 12;
+            for (let i = 0; i < count; i++) {
                 const petal = document.createElement('div');
                 petal.className = 'petal';
                 petal.textContent = petalShapes[Math.floor(Math.random() * petalShapes.length)];
                 petal.style.left = Math.random() * 100 + '%';
-                petal.style.fontSize = (12 + Math.random() * 14) + 'px';
+                petal.style.fontSize = (14 + Math.random() * 12) + 'px';
                 petal.style.setProperty('--delay', (Math.random() * 15) + 's');
-                petal.style.setProperty('--drift', (Math.random() - 0.5) * 100 + 'px');
-                petal.style.animationDuration = (8 + Math.random() * 12) + 's';
+                petal.style.setProperty('--drift', (Math.random() - 0.5) * 120 + 'px');
+                petal.style.animationDuration = (10 + Math.random() * 15) + 's';
                 document.body.appendChild(petal);
             }
         }
         createPetals();
 
-        // ========== SOUNDCLOUD ==========
-        let widget = null, isPlaying = false, scReady = false;
-
-        function initSC() {
-            widget = SC.Widget(document.getElementById('sc-iframe'));
-            widget.bind(SC.Widget.Events.READY, function() {
-                scReady = true; widget.setVolume(70);
-            });
-            widget.bind(SC.Widget.Events.FINISH, function() {
-                widget.seekTo(0); widget.play();
-            });
-            widget.bind(SC.Widget.Events.ERROR, function() {
-                console.warn('SoundCloud: gagal memuat lagu.'); scReady = false;
-            });
+        // ========== 🔓 iOS AUDIO UNLOCK ==========
+        function unlockAudio() {
+            if (isIOS && !audioUnlocked) {
+                // Create minimal silent audio to trigger iOS audio context unlock
+                const audio = new Audio();
+                // 0.1s silent WAV (base64 encoded)
+                audio.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAA=';
+                audio.volume = 0.01;
+                audio.play().then(() => {
+                    audio.pause();
+                    audioUnlocked = true;
+                    console.log('🔓 iOS audio unlocked');
+                }).catch(err => {
+                    console.warn('⚠️ iOS unlock attempt failed:', err);
+                });
+            }
         }
 
+        // Bind unlock to all user interactions (iOS requirement)
+        ['touchstart', 'touchend', 'click', 'keydown'].forEach(evt => {
+            document.addEventListener(evt, unlockAudio, { passive: true, once: true });
+        });
+
+        // ========== 🔊 SOUNDCLOUD WIDGET ==========
+        function initSC() {
+            try {
+                widget = SC.Widget(document.getElementById('sc-iframe'));
+                
+                widget.bind(SC.Widget.Events.READY, function() {
+                    scReady = true;
+                    widget.setVolume(75);
+                    console.log('✅ SoundCloud widget ready');
+                });
+
+                widget.bind(SC.Widget.Events.PLAY, function() {
+                    console.log('▶️ Playing');
+                });
+
+                widget.bind(SC.Widget.Events.PAUSE, function() {
+                    console.log('⏸️ Paused');
+                });
+
+                widget.bind(SC.Widget.Events.FINISH, function() {
+                    // Loop: restart from beginning
+                    widget.seekTo(0);
+                    widget.play();
+                });
+
+                widget.bind(SC.Widget.Events.ERROR, function(err) {
+                    console.warn('❌ SoundCloud error:', err);
+                    scReady = false;
+                    showIOSHint();
+                });
+
+            } catch (e) {
+                console.error('Failed to init SoundCloud:', e);
+                scReady = false;
+            }
+        }
+
+        // Initialize SC after page load
         window.addEventListener('load', function() {
-            if (typeof SC !== 'undefined') initSC();
+            if (typeof SC !== 'undefined' && SC.Widget) {
+                initSC();
+            } else {
+                // Fallback: retry after short delay
+                setTimeout(() => {
+                    if (typeof SC !== 'undefined' && SC.Widget) initSC();
+                }, 500);
+            }
         });
 
         function showSongInfo(show) {
             const info = document.getElementById('songInfo');
-            show ? info.classList.add('show') : info.classList.remove('show');
+            if (show) {
+                info.classList.add('show');
+            } else {
+                info.classList.remove('show');
+            }
         }
 
+        function showIOSHint() {
+            if (isIOS) {
+                const hint = document.getElementById('iosHint');
+                hint.classList.add('show');
+                // Auto-hide after 7 seconds
+                setTimeout(() => hint.classList.remove('show'), 7000);
+            }
+        }
+
+        // ========== 🎵 TOGGLE MUSIC ==========
         function toggleMusic() {
             const btn = document.getElementById('musicBtn');
             const visualizer = document.getElementById('musicVisualizer');
 
             if (!isPlaying) {
-                if (!widget && typeof SC !== 'undefined') initSC();
+                // CRITICAL: Unlock iOS audio context BEFORE attempting playback
+                unlockAudio();
+                
+                // Initialize widget if needed
+                if (!widget && typeof SC !== 'undefined' && SC.Widget) {
+                    initSC();
+                }
+
+                // Show loading state
                 btn.innerHTML = '<span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span>';
+                btn.disabled = true;
+
+                // iOS needs slightly longer delay for audio context to be ready
+                const playDelay = isIOS ? 400 : 1000;
 
                 setTimeout(function() {
                     if (widget && scReady) {
-                        widget.play(); isPlaying = true;
-                        btn.textContent = '🎶'; btn.classList.add('playing');
-                        visualizer.classList.add('active');
-                        showSongInfo(true);
-                        setTimeout(() => showSongInfo(false), 4000);
+                        // Attempt to play with proper promise handling
+                        const playPromise = widget.play();
+                        
+                        // Handle both promise and non-promise SC API responses
+                        if (playPromise && typeof playPromise.then === 'function') {
+                            playPromise.then(() => {
+                                onPlaySuccess(btn, visualizer);
+                            }).catch((err) => {
+                                onPlayError(btn, err);
+                            });
+                        } else {
+                            // Fallback for older SC API
+                            setTimeout(() => {
+                                if (isPlaying !== true) {
+                                    // Assume success if no error after short delay
+                                    onPlaySuccess(btn, visualizer);
+                                }
+                            }, 300);
+                        }
                     } else {
-                        btn.textContent = '🎵'; btn.title = 'Musik belum siap, coba lagi';
+                        onPlayError(btn, 'Widget not ready');
                     }
-                }, 1200);
+                }, playDelay);
+
             } else {
-                widget.pause(); isPlaying = false;
-                btn.textContent = '🎵'; btn.classList.remove('playing');
+                // Pause
+                if (widget) {
+                    widget.pause();
+                }
+                isPlaying = false;
+                btn.textContent = '🎵';
+                btn.classList.remove('playing');
                 visualizer.classList.remove('active');
                 showSongInfo(false);
             }
         }
 
-        // ========== CAROUSEL LOGIC ==========
+        function onPlaySuccess(btn, visualizer) {
+            isPlaying = true;
+            btn.textContent = '🎶';
+            btn.classList.add('playing');
+            btn.disabled = false;
+            visualizer.classList.add('active');
+            showSongInfo(true);
+            setTimeout(() => showSongInfo(false), 4500);
+            console.log('✅ Music playing');
+        }
+
+        function onPlayError(btn, error) {
+            console.warn('❌ Playback failed:', error);
+            isPlaying = false;
+            btn.textContent = '🎵';
+            btn.classList.remove('playing');
+            btn.disabled = false;
+            
+            // Show helpful hint for iOS users
+            if (isIOS) {
+                showIOSHint();
+            }
+            
+            // Optional: gentle visual feedback
+            btn.classList.add('error');
+            setTimeout(() => btn.classList.remove('error'), 500);
+        }
+
+        // ========== 🎠 CAROUSEL LOGIC ==========
         const track = document.getElementById('carouselTrack');
         const slides = document.querySelectorAll('.slide');
         const dotsContainer = document.getElementById('carouselDots');
         const prevBtn = document.getElementById('prevBtn');
         const nextBtn = document.getElementById('nextBtn');
+        const carousel = document.getElementById('carousel');
 
         let currentSlide = 0;
         const totalSlides = slides.length;
 
-        // Create dots
+        // Create navigation dots
         slides.forEach((_, idx) => {
-            const dot = document.createElement('div');
+            const dot = document.createElement('button');
             dot.className = 'dot' + (idx === 0 ? ' active' : '');
+            dot.setAttribute('role', 'tab');
+            dot.setAttribute('aria-label', `Ke slide ${idx + 1}`);
+            dot.setAttribute('aria-selected', idx === 0);
             dot.onclick = () => goToSlide(idx);
             dotsContainer.appendChild(dot);
         });
-
         const dots = document.querySelectorAll('.dot');
 
         function updateCarousel() {
+            // Move track
             track.style.transform = `translateX(-${currentSlide * 100}%)`;
             
-            // Update active slide
+            // Update slide visibility
             slides.forEach((slide, idx) => {
                 slide.classList.toggle('active', idx === currentSlide);
+                slide.setAttribute('aria-hidden', idx !== currentSlide);
             });
             
             // Update dots
             dots.forEach((dot, idx) => {
-                dot.classList.toggle('active', idx === currentSlide);
+                const isActive = idx === currentSlide;
+                dot.classList.toggle('active', isActive);
+                dot.setAttribute('aria-selected', isActive);
             });
 
-            // Update buttons
+            // Update nav buttons
             prevBtn.disabled = currentSlide === 0;
             nextBtn.disabled = currentSlide === totalSlides - 1;
+            
+            // Update aria-live for accessibility
+            track.setAttribute('aria-live', currentSlide === 0 ? 'polite' : 'off');
         }
 
         function goToSlide(index) {
+            // Clamp index
             if (index < 0) index = 0;
             if (index >= totalSlides) index = totalSlides - 1;
-            currentSlide = index;
-            updateCarousel();
+            
+            if (index !== currentSlide) {
+                currentSlide = index;
+                updateCarousel();
+                
+                // Auto-play music on first slide change if not playing
+                if (!isPlaying && currentSlide > 0) {
+                    // Small delay to ensure user interaction context
+                    setTimeout(() => {
+                        if (!isPlaying) toggleMusic();
+                    }, 200);
+                }
+            }
         }
 
         function changeSlide(direction) {
             goToSlide(currentSlide + direction);
         }
 
-        // Swipe Support
-        let touchStartX = 0, touchEndX = 0;
-        const carousel = document.querySelector('.carousel');
+        // ========== 👆 SWIPE SUPPORT ==========
+        let touchStartX = 0, touchEndX = 0, touchStartY = 0;
+        const swipeThreshold = 50; // Minimum px to register swipe
+        const swipeVerticalThreshold = 30; // Ignore if vertical swipe is dominant
 
         carousel.addEventListener('touchstart', (e) => {
             touchStartX = e.changedTouches[0].screenX;
+            touchStartY = e.changedTouches[0].screenY;
         }, { passive: true });
 
         carousel.addEventListener('touchend', (e) => {
             touchEndX = e.changedTouches[0].screenX;
-            handleSwipe();
-        }, { passive: true });
-
-        function handleSwipe() {
-            const diff = touchStartX - touchEndX;
-            if (Math.abs(diff) > 50) { // Minimum swipe distance
-                if (diff > 0) changeSlide(1);   // Swipe left → next
-                else changeSlide(-1);           // Swipe right → prev
+            const touchEndY = e.changedTouches[0].screenY;
+            
+            const diffX = touchStartX - touchEndX;
+            const diffY = Math.abs(touchStartY - touchEndY);
+            
+            // Only handle horizontal swipe if it's more dominant than vertical
+            if (Math.abs(diffX) > swipeThreshold && diffY < swipeVerticalThreshold) {
+                e.preventDefault();
+                if (diffX > 0) {
+                    changeSlide(1);   // Swipe left → next
+                } else {
+                    changeSlide(-1);  // Swipe right → prev
+                }
             }
-        }
+        }, { passive: false });
 
-        // Keyboard navigation
+        // Prevent default touch behavior on carousel for smoother swipe
+        carousel.addEventListener('touchmove', (e) => {
+            // Allow vertical scroll, block horizontal drag
+            const touchY = e.changedTouches[0].screenY;
+            const diffY = Math.abs(touchY - touchStartY);
+            if (diffY > 10) {
+                // Let vertical scroll happen
+                return;
+            }
+            // Block horizontal drag to prevent page scroll
+            if (e.cancelable) e.preventDefault();
+        }, { passive: false });
+
+        // ========== ⌨️ KEYBOARD NAVIGATION ==========
         document.addEventListener('keydown', (e) => {
-            if (document.getElementById('carouselWrapper').style.display !== 'block') return;
-            if (e.key === 'ArrowLeft') changeSlide(-1);
-            if (e.key === 'ArrowRight') changeSlide(1);
+            const carouselVisible = document.getElementById('carouselWrapper').classList.contains('show');
+            if (!carouselVisible) return;
+            
+            if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                changeSlide(-1);
+            } else if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                changeSlide(1);
+            } else if (e.key === ' ' || e.key === 'Enter') {
+                // Space/Enter on intro opens letter
+                if (!carouselVisible && e.target.id === 'introSection') {
+                    e.preventDefault();
+                    openLetter();
+                }
+            }
         });
 
-        // Open Letter & Start Carousel
+        // ========== ✉️ OPEN LETTER ==========
         function openLetter() {
             const intro = document.getElementById('introSection');
             const carouselWrapper = document.getElementById('carouselWrapper');
 
-            intro.style.transition = 'all 0.5s ease';
+            // Animate intro out
+            intro.style.transition = 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
             intro.style.opacity = '0';
-            intro.style.transform = 'scale(0.9) translateY(-20px)';
+            intro.style.transform = 'scale(0.92) translateY(-25px)';
+            intro.style.pointerEvents = 'none';
 
             setTimeout(function() {
                 intro.classList.add('hidden');
                 carouselWrapper.classList.add('show');
-                updateCarousel(); // Init carousel state
                 
-                // Auto-play music on open (optional)
-                if (!isPlaying) toggleMusic();
+                // Initialize carousel state
+                updateCarousel();
+                
+                // Focus first slide for accessibility
+                slides[0].focus?.();
+                
+                // Auto-start music on open (with iOS-safe delay)
+                if (!isPlaying) {
+                    setTimeout(() => {
+                        // Only auto-play if user has interacted (iOS requirement)
+                        if (audioUnlocked || !isIOS) {
+                            toggleMusic();
+                        }
+                    }, isIOS ? 600 : 300);
+                }
             }, 500);
         }
 
-        // Initialize
+        // Allow keyboard focus on intro for accessibility
+        document.getElementById('introSection').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                openLetter();
+            }
+        });
+
+        // ========== 🚀 INITIALIZE ==========
+        // Pre-update carousel for initial state
         updateCarousel();
+
+        // Handle resize for responsive adjustments
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                // Re-create stars/petals for new viewport if needed
+                // (optional: could optimize further)
+            }, 250);
+        });
+
+        // Console welcome
+        console.log('🌸 Untukmu — loaded with love');
+        if (isIOS) console.log('📱 iOS detected — audio unlock enabled');
     </script>
 </body>
 </html>
