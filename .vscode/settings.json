@@ -1,0 +1,12 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^cd /workspaces/nyunn && python3 - <<'PY'\nimport os\nimport boto3\nfrom botocore\\.config import Config\ntry:\n    import requests\nexcept ImportError:\n    print\\('requests missing'\\)\n    raise SystemExit\n\nos\\.environ\\.update\\(\\{\n    'AWS_ACCESS_KEY_ID': 'LJ1S4XFJY2LZJUNQGR7B',\n    'AWS_SECRET_ACCESS_KEY': 'iYIg5wF03XniVGQkHgY9L0gBwpSExsm4mkb0ee86',\n\\}\\)\nclient = boto3\\.client\\('s3', endpoint_url='https://s3\\.nevaobjects\\.id', aws_access_key_id=os\\.environ\\['AWS_ACCESS_KEY_ID'\\], aws_secret_access_key=os\\.environ\\['AWS_SECRET_ACCESS_KEY'\\], region_name='us-east-1', config=Config\\(signature_version='s3v4', s3=\\{'addressing_style':'virtual'\\}\\)\\)\nurl = client\\.generate_presigned_url\\('put_object', Params=\\{'Bucket':'rizyyn','Key':'audio/test-upload2\\.txt','ACL':'public-read','ContentType':'text/plain'\\}, ExpiresIn=3600\\)\nprint\\('URL', url\\)\nresp = requests\\.put\\(url, data=b'hello world', headers=\\{'Content-Type':'text/plain'\\}\\)\nprint\\(resp\\.status_code, resp\\.text\\)\nPY$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^cd /workspaces/nyunn && python3 - <<'PY'\nimport botocore\\.config\nimport inspect\nprint\\(inspect\\.getsource\\(botocore\\.config\\.Config\\.__init__\\)\\)\nPY$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}

@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pesan Suara - RizYun</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #FAFAF9; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-6">
+    <div class="w-full max-w-3xl bg-white rounded-3xl p-6 border border-stone-200 shadow-sm">
+        <header class="mb-6">
+            <h1 class="text-3xl font-bold font-serif mb-2">Pesan Suara</h1>
+            <p class="text-sm text-stone-500">Putar audio langsung dari bucket S3, unggah file, atau rekam suara melalui browser.</p>
+        </header>
+
+        <div class="grid gap-4 mb-6">
+            <div class="rounded-2xl border border-stone-200 bg-stone-50 p-4">
+                <h2 class="font-semibold text-lg mb-3">Upload Audio ke S3</h2>
+                <input id="file-input" type="file" accept="audio/*" class="w-full rounded-md border border-stone-200 bg-white p-3 mb-3" />
+                <div class="flex flex-wrap gap-3 items-center">
+                    <button id="upload-button" class="rounded-full bg-stone-800 text-white px-4 py-2 hover:bg-stone-700 transition">Upload</button>
+                    <span id="upload-status" class="text-sm text-stone-500"></span>
+                </div>
+            </div>
+
+            <div class="rounded-2xl border border-stone-200 bg-stone-50 p-4">
+                <h2 class="font-semibold text-lg mb-3">Rekam Langsung</h2>
+                <div class="flex flex-col gap-3 mb-3">
+                    <div class="flex flex-wrap gap-3 items-center">
+                        <button id="record-button" class="rounded-full bg-amber-500 text-white px-4 py-2 hover:bg-amber-600 transition">Mulai Rekam</button>
+                        <button id="upload-recording-button" class="rounded-full bg-stone-800 text-white px-4 py-2 hover:bg-stone-700 transition" disabled>Upload Rekaman</button>
+                    </div>
+                    <label class="text-sm text-stone-500 flex flex-col gap-2">
+                        <span>Nama rekaman:</span>
+                        <select id="recording-owner" class="rounded-md border border-stone-200 bg-white p-2 text-sm">
+                            <option value="">Pilih pemilik rekaman</option>
+                            <option value="Yuyun">Rekaman Yuyun</option>
+                            <option value="Rizky">Rekaman Rizky</option>
+                        </select>
+                    </label>
+                    <label id="recording-title-label" class="text-sm text-stone-500 flex flex-col gap-2 hidden">
+                        <span>Judul rekaman:</span>
+                        <input id="recording-title" type="text" class="rounded-md border border-stone-200 bg-white p-2 text-sm" placeholder="Masukkan judul rekaman" disabled required />
+                    </label>
+                </div>
+                <p id="record-status" class="text-sm text-stone-500">Tekan “Mulai Rekam” untuk merekam suara dari mikrofon.</p>
+            </div>
+        </div>
+
+        <div id="player" class="mb-6">
+            <div class="rounded-2xl border border-stone-200 bg-stone-50 p-5 shadow-sm">
+                <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                    <div>
+                        <div class="text-xs uppercase tracking-[0.25em] text-stone-400 mb-2">Now Playing</div>
+                        <div id="current-title" class="text-xl font-semibold text-stone-900">-- Belum ada yang diputar --</div>
+                        <div id="current-subtitle" class="text-sm text-stone-500 mt-1">Pilih lagu untuk mulai mendengarkan.</div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button id="toggle-play" class="rounded-full border border-stone-300 bg-white p-3 text-stone-700 shadow-sm hover:border-stone-400 transition">
+                            <i id="play-icon" class="fas fa-play"></i>
+                        </button>
+                        <div class="text-sm text-stone-500">Putar / Jeda</div>
+                    </div>
+                </div>
+
+                <div class="mt-4 flex items-center gap-3">
+                    <div id="current-time" class="min-w-[40px] text-xs text-stone-500">00:00</div>
+                    <div class="h-2 flex-1 overflow-hidden rounded-full bg-stone-200">
+                        <div id="progress-bar" class="h-full rounded-full bg-amber-500 w-0"></div>
+                    </div>
+                    <div id="duration-time" class="min-w-[40px] text-xs text-stone-500">00:00</div>
+                </div>
+
+                <audio id="audio" class="hidden" preload="metadata"></audio>
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <h2 class="text-lg font-semibold mb-3">Daftar Audio</h2>
+            <ul id="track-list" class="space-y-3 text-sm text-stone-600"></ul>
+        </div>
+
+        <hr class="my-4" />
+        <div class="text-xs text-stone-500">
+            <p class="mb-1">Semua audio disimpan di bucket S3 <code>rizyyn</code> pada host <code>rizyyn.s3.nevaobjects.id</code>.</p>
+            <p>Jangan simpan <code>Access Key</code> / <code>Secret Key</code> di file publik. Gunakan environment variable atau vault.</p>
+        </div>
+    </div>
+
+    <script>
+        const api = {
+            tracks: '/tracks',
+            upload: '/upload',
+        };
+
+        const audio = document.getElementById('audio');
+        const trackListEl = document.getElementById('track-list');
+        const currentTitleEl = document.getElementById('current-title');
+        const currentSubtitleEl = document.getElementById('current-subtitle');
+        const currentTimeEl = document.getElementById('current-time');
+        const durationTimeEl = document.getElementById('duration-time');
+        const progressBar = document.getElementById('progress-bar');
+        const togglePlayButton = document.getElementById('toggle-play');
+        const playIcon = document.getElementById('play-icon');
+        const fileInput = document.getElementById('file-input');
+        const uploadButton = document.getElementById('upload-button');
+        const uploadStatus = document.getElementById('upload-status');
+        const recordButton = document.getElementById('record-button');
+        const uploadRecordingButton = document.getElementById('upload-recording-button');
+        const recordStatus = document.getElementById('record-status');
+        const recordingOwnerSelect = document.getElementById('recording-owner');
+        const recordingTitleLabel = document.getElementById('recording-title-label');
+        const recordingTitleInput = document.getElementById('recording-title');
+
+        let tracks = [];
+        let mediaRecorder = null;
+        let recordedChunks = [];
+        let recordingBlob = null;
+        let currentTrackIndex = null;
+        let isRecording = false;
+
+        uploadButton.addEventListener('click', async () => {
+            let file = fileInput.files[0];
+            if (!file && recordingBlob) {
+                file = makeRecordedFile();
+            }
+            if (!file) {
+                setStatus(uploadStatus, 'Pilih file audio atau rekam terlebih dahulu.', true);
+                return;
+            }
+            await uploadAudio(file);
+        });
+
+        recordButton.addEventListener('click', toggleRecording);
+
+        uploadRecordingButton.addEventListener('click', async () => {
+            if (!recordingBlob) {
+                setStatus(uploadStatus, 'Tidak ada rekaman untuk diupload.', true);
+                return;
+            }
+            if (!recordingOwnerSelect.value) {
+                setStatus(uploadStatus, 'Pilih pemilik rekaman terlebih dahulu.', true);
+                return;
+            }
+            if (!recordingTitleInput.value.trim()) {
+                setStatus(uploadStatus, 'Masukkan judul rekaman sebelum unggah.', true);
+                recordingTitleInput.focus();
+                return;
+            }
+            const file = makeRecordedFile();
+            await uploadAudio(file);
+        });
+
+        togglePlayButton.addEventListener('click', () => {
+            if (!audio.src) {
+                setStatus(uploadStatus, 'Pilih lagu terlebih dahulu untuk diputar.', true);
+                return;
+            }
+            if (audio.paused) {
+                audio.play();
+            } else {
+                audio.pause();
+            }
+        });
+
+        audio.addEventListener('play', () => {
+            playIcon.className = 'fas fa-pause';
+            currentSubtitleEl.textContent = 'Sedang diputar...';
+        });
+
+        audio.addEventListener('pause', () => {
+            playIcon.className = 'fas fa-play';
+            if (audio.currentTime && currentTrackIndex !== null) {
+                currentSubtitleEl.textContent = 'Dijeda. Tekan untuk melanjutkan.';
+            }
+        });
+
+        audio.addEventListener('timeupdate', () => {
+            if (!audio.duration) return;
+            const progress = (audio.currentTime / audio.duration) * 100;
+            progressBar.style.width = `${progress}%`;
+            currentTimeEl.textContent = formatTime(audio.currentTime);
+            durationTimeEl.textContent = formatTime(audio.duration);
+        });
+
+        audio.addEventListener('ended', () => {
+            playIcon.className = 'fas fa-play';
+            currentSubtitleEl.textContent = 'Selesai. Pilih lagu lain atau putar ulang.';
+        });
+
+        audio.addEventListener('loadedmetadata', () => {
+            durationTimeEl.textContent = formatTime(audio.duration);
+        });
+
+        function setStatus(element, message, isError = false) {
+            element.textContent = message;
+            element.classList.toggle('text-rose-600', isError);
+            element.classList.toggle('text-stone-500', !isError);
+        }
+
+        function makeRecordedFile() {
+            const owner = recordingOwnerSelect.value;
+            const title = recordingTitleInput.value.trim();
+            const sanitizedOwner = owner.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+            const sanitizedTitle = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            const filename = `rekaman-${sanitizedOwner}-${sanitizedTitle}-${timestamp}.webm`;
+            return new File([recordingBlob], filename, { type: 'audio/webm' });
+        }
+
+        async function fetchTracks() {
+            try {
+                const res = await fetch(api.tracks);
+                if (!res.ok) throw new Error('Gagal mengambil daftar audio.');
+                tracks = await res.json();
+                renderList();
+            } catch (err) {
+                trackListEl.innerHTML = `<li class="text-stone-400">${escapeHtml(err.message)}</li>`;
+                console.error(err);
+            }
+        }
+
+        async function uploadAudio(file) {
+            const form = new FormData();
+            form.append('file', file);
+            setStatus(uploadStatus, 'Mengunggah...');
+            uploadButton.disabled = true;
+            uploadRecordingButton.disabled = true;
+
+            try {
+                const res = await fetch(api.upload, {
+                    method: 'POST',
+                    body: form,
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Upload gagal.');
+                setStatus(uploadStatus, `Berhasil unggah: ${data.title}`);
+                fileInput.value = '';
+                recordingBlob = null;
+                uploadRecordingButton.disabled = true;
+                await fetchTracks();
+            } catch (err) {
+                setStatus(uploadStatus, err.message, true);
+                console.error(err);
+            } finally {
+                uploadButton.disabled = false;
+                if (!isRecording && recordingBlob) {
+                    uploadRecordingButton.disabled = false;
+                }
+            }
+        }
+
+        function renderList() {
+            if (!tracks.length) {
+                trackListEl.innerHTML = '<li class="text-stone-400">Belum ada audio di storage. Unggah file atau rekam untuk menambah.</li>';
+                return;
+            }
+
+            trackListEl.innerHTML = tracks.map((track, index) => {
+                return `
+                    <li class="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                        <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                            <div>
+                                <div class="font-medium text-stone-900">${escapeHtml(track.title)}</div>
+                                <div class="text-xs text-stone-400">${escapeHtml(track.key)}</div>
+                            </div>
+                            <div class="flex flex-wrap items-center gap-3">
+                                <span class="text-sm text-stone-500">${formatBytes(track.size)}</span>
+                                <button data-index="${index}" class="play-btn rounded-full bg-stone-100 px-4 py-2 text-sm text-stone-700 hover:bg-stone-200 transition">Putar</button>
+                                <button data-index="${index}" class="delete-track-btn rounded-full bg-rose-100 px-4 py-2 text-sm text-rose-700 hover:bg-rose-200 transition">Hapus</button>
+                            </div>
+                        </div>
+                    </li>
+                `;
+            }).join('');
+
+            document.querySelectorAll('.play-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const idx = Number(btn.getAttribute('data-index'));
+                    playTrack(idx);
+                });
+            });
+            document.querySelectorAll('.delete-track-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const idx = Number(btn.getAttribute('data-index'));
+                    await deleteAudio(idx);
+                });
+            });
+        }
+
+        async function deleteAudio(index) {
+            const track = tracks[index];
+            if (!track) return;
+            if (!confirm(`Hapus audio ${track.title}?`)) return;
+
+            try {
+                const res = await fetch(`${api.tracks}?key=${encodeURIComponent(track.key)}`, {
+                    method: 'DELETE',
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Gagal menghapus audio.');
+                setStatus(uploadStatus, `Audio dihapus: ${track.title}`);
+
+                if (currentTrackIndex === index) {
+                    audio.pause();
+                    audio.src = '';
+                    currentTrackIndex = null;
+                    currentTitleEl.textContent = '-- Belum ada yang diputar --';
+                    currentSubtitleEl.textContent = 'Pilih lagu untuk mulai mendengarkan.';
+                    progressBar.style.width = '0%';
+                    currentTimeEl.textContent = '00:00';
+                    durationTimeEl.textContent = '00:00';
+                }
+
+                tracks.splice(index, 1);
+                if (currentTrackIndex !== null && currentTrackIndex > index) {
+                    currentTrackIndex -= 1;
+                }
+                renderList();
+            } catch (err) {
+                setStatus(uploadStatus, err.message, true);
+                console.error(err);
+            }
+        }
+
+        function playTrack(index) {
+            const track = tracks[index];
+            if (!track) return;
+            audio.src = track.url;
+            audio.play().catch(() => {});
+            currentTitleEl.textContent = track.title;
+        }
+
+        async function toggleRecording() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                setStatus(recordStatus, 'Browser tidak mendukung perekaman audio.', true);
+                return;
+            }
+
+            if (isRecording) {
+                mediaRecorder.stop();
+                return;
+            }
+
+            if (!recordingOwnerSelect.value) {
+                setStatus(recordStatus, 'Pilih pemilik rekaman terlebih dahulu.', true);
+                recordingOwnerSelect.focus();
+                return;
+            }
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                recordedChunks = [];
+                mediaRecorder = new MediaRecorder(stream);
+
+                mediaRecorder.addEventListener('dataavailable', (event) => {
+                    if (event.data.size > 0) recordedChunks.push(event.data);
+                });
+
+                mediaRecorder.addEventListener('stop', () => {
+                    recordingBlob = new Blob(recordedChunks, { type: 'audio/webm' });
+                    recordingTitleLabel.classList.remove('hidden');
+                    recordingTitleInput.disabled = false;
+                    uploadRecordingButton.disabled = false;
+                    setStatus(recordStatus, 'Rekaman selesai. Masukkan judul dan tekan Upload Rekaman.');
+                    recordButton.textContent = 'Mulai Rekam';
+                    isRecording = false;
+                    stream.getTracks().forEach(track => track.stop());
+                });
+
+                mediaRecorder.start();
+                isRecording = true;
+                recordButton.textContent = 'Hentikan Rekaman';
+                uploadRecordingButton.disabled = true;
+                setStatus(recordStatus, 'Rekam suara... Tekan Hentikan untuk selesai.');
+            } catch (err) {
+                setStatus(recordStatus, 'Gagal mengaktifkan mikrofon. Cek izin browser.', true);
+                console.error(err);
+            }
+        }
+
+        function escapeHtml(str) {
+            return String(str).replace(/[&<>"']/g, function (s) {
+                return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[s];
+            });
+        }
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 B';
+            const units = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(1024));
+            return `${(bytes / Math.pow(1024, i)).toFixed(1)} ${units[i]}`;
+        }
+
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        fetchTracks();
+    </script>
+</body>
+</html>

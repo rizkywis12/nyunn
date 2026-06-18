@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kenangan - RizYun</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/playfair-display@5.0.16/400.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/playfair-display@5.0.16/700.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.16/400.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.16/500.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FAFAF9;
+            background-image: radial-gradient(at top right, #E7E5E4 0%, transparent 40%),
+                              radial-gradient(at bottom left, #E7E5E4 0%, transparent 40%);
+        }
+        .font-serif {
+            font-family: 'Playfair Display', serif;
+        }
+        .fade-in {
+            animation: fadeIn 0.8s ease-out forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        .delay-100 { animation-delay: 0.1s; }
+        .delay-200 { animation-delay: 0.2s; }
+        .delay-300 { animation-delay: 0.3s; }
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .album-card {
+            transition: transform 0.18s ease, border-color 0.18s ease, background-color 0.18s ease;
+            opacity: 0;
+            transform: translateY(8px);
+            animation: cardAppear 0.45s ease forwards;
+            border: 1px solid #e5e7eb;
+            border-radius: 1.25rem;
+            background: #ffffff;
+            min-height: 180px;
+        }
+        .album-card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 12px 22px rgba(15, 23, 42, 0.06);
+        }
+        .album-card.active {
+            border-color: #0f172a;
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+        .photo-card {
+            position: relative;
+            min-height: 220px;
+            max-height: 220px;
+            border-radius: 1rem;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+            background: #ffffff;
+            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
+            opacity: 0;
+            transform: translateY(10px);
+            animation: cardAppear 0.5s ease forwards;
+        }
+        .photo-card .photo-preview {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        .photo-card img,
+        .photo-card video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            transition: transform 0.35s ease;
+        }
+        .photo-card:hover img,
+        .photo-card:hover video {
+            transform: scale(1.02);
+        }
+        .photo-card button {
+            position: relative;
+            z-index: 10;
+            width: 36px;
+            height: 36px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #e5e7eb;
+            background: rgba(255, 255, 255, 0.92);
+            color: #475569;
+            transition: transform 0.18s ease, background-color 0.18s ease, opacity 0.18s ease;
+        }
+        .photo-card button:hover {
+            transform: translateY(-1px);
+            background: rgba(248, 250, 252, 0.98);
+        }
+        .photo-card .preview-fallback {
+            display: none;
+        }
+        .photo-card.preview-error .preview-fallback {
+            display: flex;
+        }
+        .photo-card.preview-error img,
+        .photo-card.preview-error video {
+            display: none;
+        }
+        #lightboxOverlay {
+            opacity: 0;
+            animation: overlayFade 0.35s ease forwards;
+        }
+        .upload-preview img {
+            border-radius: 1rem;
+        }
+        #upload-progress {
+            min-height: 1rem;
+        }
+        #upload-progress-text {
+            transition: color 0.2s ease;
+        }
+        #upload-loading-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 40;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(15, 23, 42, 0.72);
+            backdrop-filter: blur(10px);
+        }
+        #upload-loading-overlay.active {
+            display: flex;
+        }
+        .loading-card {
+            width: min(95%, 420px);
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            box-shadow: 0 30px 70px rgba(15, 23, 42, 0.18);
+            text-align: center;
+        }
+        .loader {
+            width: 3rem;
+            height: 3rem;
+            border: 0.45rem solid rgba(14, 165, 233, 0.25);
+            border-top-color: #0ea5e9;
+            border-radius: 50%;
+            animation: spin 0.95s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        @keyframes cardAppear {
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        @keyframes overlayFade {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-start p-6 text-stone-800">
+    <div class="w-full max-w-6xl">
+        <header class="text-center mb-10 fade-in">
+            <a href="index.html" class="inline-flex items-center gap-3 rounded-full border border-stone-200 bg-white px-5 py-3 text-sm font-medium text-stone-700 shadow-sm hover:bg-stone-100 transition">
+                <i class="fas fa-arrow-left"></i>
+                Kembali ke Rumah
+            </a>
+            <div class="mt-8">
+                <div class="inline-flex items-center justify-center p-3 rounded-full bg-stone-200 mb-6">
+                    <i class="fas fa-camera-retro text-stone-600 text-lg"></i>
+                </div>
+                <h1 class="font-serif text-5xl md:text-6xl font-bold text-stone-900 mb-4">Halaman Kenangan</h1>
+                <p class="text-stone-500 text-base md:text-lg max-w-2xl mx-auto">Galeri foto kenangan kita bersama. Pilih lokasi, lalu lihat semua momen yang pernah kita abadikan di sana.</p>
+            </div>
+        </header>
+        <section class="mb-10 fade-in delay-200">
+            <div class="grid gap-4">
+                <div class="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm">
+                    <h3 class="font-semibold text-stone-900 mb-3">Tambah kategori sendiri</h3>
+                    <p class="text-stone-500 text-sm leading-relaxed mb-4">Buat album baru dengan nama sendiri, lalu langsung isi foto-foto kenangan.</p>
+                    <div class="flex flex-col gap-3">
+                        <input id="new-album-name" type="text" placeholder="Contoh: Ragunan Malam" class="w-full rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-700 focus:border-stone-900 focus:outline-none" />
+                        <button onclick="addCategory()" class="inline-flex items-center justify-center rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-stone-800 transition">Tambah Kategori</button>
+                        <p id="category-hint" class="text-stone-400 text-xs">Kategori akan diubah menjadi nama folder saat disimpan di S3.</p>
+                    </div>
+                </div>
+            </div>
+            <div id="album-cards" class="mt-6 grid gap-4 md:grid-cols-3"></div>
+        </section>
+
+        <section id="album-section" class="hidden mb-12 fade-in delay-300 relative">
+            <div id="upload-loading-overlay">
+                <div class="loading-card">
+                    <div class="loader"></div>
+                    <h3 class="text-xl font-semibold text-slate-900">Mengunggah media...</h3>
+                    <p id="upload-loading-text" class="mt-2 text-sm text-slate-500">Tunggu sebentar, file sedang dikirim.</p>
+                </div>
+            </div>
+            <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+                <div>
+                    <p class="text-sm uppercase tracking-[0.3em] text-stone-400" id="album-tag"></p>
+                    <h2 class="font-serif text-4xl font-bold text-stone-900 mt-2" id="album-title"></h2>
+                    <p class="text-stone-500 mt-3 max-w-2xl" id="album-description"></p>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span class="rounded-full bg-stone-100 px-4 py-2 text-sm text-stone-600" id="photo-count"></span>
+                    <button onclick="document.getElementById('upload-input').click()" class="inline-flex items-center gap-2 rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-stone-800 transition">
+                        <i class="fas fa-upload"></i>
+                        Upload Media
+                    </button>
+                </div>
+            </div>
+
+            <input id="upload-input" type="file" accept="image/*,video/*,.heic,.raw,.arw,.mp4,.mkv,.mov,.avi,.webm" multiple class="hidden" onchange="handleUpload(event)">
+
+            <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" id="photo-grid"></div>
+
+            <div id="upload-hint" class="mt-8 rounded-2xl border border-stone-200 bg-white p-6 text-sm text-stone-500 hidden">
+                Foto yang diunggah akan ditambahkan ke galeri album yang dipilih. Ini hanya preview di sisi klien untuk halaman kenangan.
+            </div>
+            <div id="upload-progress" class="mt-4 hidden rounded-full border border-stone-200 bg-stone-100 overflow-hidden">
+                <div id="upload-progress-bar" class="h-3 w-0 rounded-full bg-gradient-to-r from-sky-500 to-cyan-500 transition-all duration-200"></div>
+            </div>
+            <p id="upload-progress-text" class="mt-2 text-sm text-stone-500 hidden">Mengunggah...</p>
+
+            <div id="lightboxOverlay" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+                <div class="relative w-full max-w-6xl rounded-3xl bg-black/90 p-4 shadow-2xl">
+                    <button onclick="closeLightbox()" class="absolute right-4 top-4 rounded-full bg-white/90 px-3 py-2 text-stone-900 shadow-sm hover:bg-white">Tutup</button>
+                    <a id="lightboxDownload" href="#" download class="absolute right-24 top-4 inline-flex items-center gap-2 rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-stone-900 shadow-sm hover:bg-white">Download <i class="fas fa-download"></i></a>
+                    <img id="lightboxImage" class="mx-auto h-[80vh] w-full max-w-full object-contain rounded-3xl" src="" alt="Foto fullscreen" />
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer class="mt-16 text-center text-stone-400 text-sm fade-in delay-300">&copy; 2026 RizYun. Kenangan kita, satu album pada satu waktu.</footer>
+
+    <script>
+        const albums = [];
+
+        let selectedAlbum = null;
+        let selectedAlbumIndex = -1;
+
+        function slugifyAlbum(name) {
+            return name
+                .trim()
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/(^-|-$)/g, '');
+        }
+
+        function friendlyAlbumName(slug) {
+            return slug
+                .split('-')
+                .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+                .join(' ');
+        }
+
+        function renderAlbumCards() {
+            const container = document.getElementById('album-cards');
+            if (!albums.length) {
+                container.innerHTML = '<div class="col-span-full rounded-3xl border border-dashed border-stone-300 bg-white/70 p-12 text-center text-stone-500">Belum ada album. Tambahkan kategori baru untuk mulai menyimpan foto.</div>';
+                return;
+            }
+            container.innerHTML = albums.map((album, index) => {
+                return `
+                    <div class="album-card p-6 cursor-pointer ${index === selectedAlbumIndex ? 'active' : ''}" data-index="${index}" onclick="selectAlbum(${index})">
+                        <div class="mb-4 text-slate-400">
+                            <i class="fas fa-images text-2xl"></i>
+                        </div>
+                        <h3 class="font-semibold text-lg mb-1">${album.tag}</h3>
+                        <p class="text-sm text-slate-500 leading-relaxed">${album.description}</p>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function loadAlbumList() {
+            try {
+                const response = await fetch('/photo-albums');
+                if (!response.ok) {
+                    throw new Error('Gagal memuat daftar album');
+                }
+                const data = await response.json();
+                albums.length = 0;
+                data.forEach(slug => {
+                    const tag = friendlyAlbumName(slug);
+                    albums.push({
+                        slug,
+                        tag,
+                        title: `Album ${tag}`,
+                        description: `Album ${tag}.`,
+                        photos: [],
+                    });
+                });
+                renderAlbumCards();
+                if (albums.length) {
+                    selectAlbum(0);
+                }
+            } catch (error) {
+                console.error(error);
+                document.getElementById('album-cards').innerHTML = '<div class="col-span-full rounded-3xl border border-dashed border-red-300 bg-red-50 p-12 text-center text-red-600">Tidak bisa memuat album. Coba refresh halaman.</div>';
+            }
+        }
+
+        function addCategory() {
+            const input = document.getElementById('new-album-name');
+            const rawName = input.value.trim();
+            const slug = slugifyAlbum(rawName);
+            const hint = document.getElementById('category-hint');
+
+            if (!rawName) {
+                hint.textContent = 'Masukkan nama kategori terlebih dahulu.';
+                hint.classList.add('text-red-500');
+                return;
+            }
+            if (!slug) {
+                hint.textContent = 'Nama kategori harus berisi huruf atau angka.';
+                hint.classList.add('text-red-500');
+                return;
+            }
+            const existingIndex = albums.findIndex(album => album.slug === slug);
+            if (existingIndex !== -1) {
+                selectAlbum(existingIndex);
+                hint.textContent = `Album "${friendlyAlbumName(slug)}" sudah ada.`;
+                hint.classList.remove('text-red-500');
+                input.value = '';
+                return;
+            }
+
+            const tag = friendlyAlbumName(slug);
+            albums.push({
+                slug,
+                tag,
+                title: `Album ${tag}`,
+                description: `Album ${tag}.`,
+                photos: [],
+            });
+            renderAlbumCards();
+            selectAlbum(albums.length - 1);
+            hint.textContent = `Kategori "${tag}" berhasil ditambahkan.`;
+            hint.classList.remove('text-red-500');
+            input.value = '';
+        }
+
+        async function selectAlbum(index) {
+            selectedAlbumIndex = index;
+            selectedAlbum = albums[index];
+            renderAlbumCards();
+            await loadAlbumPhotos(selectedAlbum.slug);
+            renderAlbumDetails();
+        }
+
+        async function loadAlbumPhotos(slug) {
+            const grid = document.getElementById('photo-grid');
+            grid.innerHTML = '<div class="col-span-full rounded-3xl border border-dashed border-stone-300 bg-white/70 p-12 text-center text-stone-500">Memuat media...</div>';
+            try {
+                const response = await fetch(`/photos?album=${encodeURIComponent(slug)}`);
+                if (!response.ok) {
+                    throw new Error('Gagal memuat media');
+                }
+                const data = await response.json();
+                selectedAlbum.photos = data.map(item => ({ src: item.url, alt: item.filename, key: item.key }));
+            } catch (error) {
+                console.error(error);
+                selectedAlbum.photos = [];
+                grid.innerHTML = '<div class="col-span-full rounded-3xl border border-dashed border-red-300 bg-red-50 p-10 text-center text-red-600">Tidak dapat memuat media. Pastikan backend S3 aktif.</div>';
+            }
+        }
+
+        function renderAlbumDetails() {
+            if (!selectedAlbum) return;
+            document.getElementById('album-section').classList.remove('hidden');
+            document.getElementById('album-tag').textContent = selectedAlbum.tag;
+            document.getElementById('album-title').textContent = selectedAlbum.title;
+            document.getElementById('album-description').textContent = selectedAlbum.description;
+            document.getElementById('photo-count').textContent = `${selectedAlbum.photos.length} foto`;
+            document.getElementById('upload-hint').classList.remove('hidden');
+            renderPhotos();
+        }
+
+        function isVideoUrl(url) {
+            return /\.(mp4|mkv|mov|avi|webm|ogg)$/i.test(url);
+        }
+
+        function isImageUrl(url) {
+            return /\.(jpe?g|png|gif|webp|svg|heic|arw|raw)$/i.test(url);
+        }
+
+        function getMimeType(url) {
+            const ext = url.split('.').pop().toLowerCase();
+            const map = {
+                jpg: 'image/jpeg',
+                jpeg: 'image/jpeg',
+                png: 'image/png',
+                webp: 'image/webp',
+                gif: 'image/gif',
+                svg: 'image/svg+xml',
+                heic: 'image/heic',
+                raw: 'image/x-raw',
+                arw: 'image/x-sony-arw',
+                mp4: 'video/mp4',
+                mkv: 'video/x-matroska',
+                mov: 'video/quicktime',
+                avi: 'video/x-msvideo',
+                webm: 'video/webm',
+                ogg: 'video/ogg',
+            };
+            return map[ext] || 'application/octet-stream';
+        }
+
+        function renderPhotos() {
+            const grid = document.getElementById('photo-grid');
+            if (!selectedAlbum || selectedAlbum.photos.length === 0) {
+                grid.innerHTML = '<div class="col-span-full rounded-3xl border border-dashed border-stone-300 bg-white/70 p-10 text-center text-stone-500">Belum ada media di album ini. Unggah foto atau video untuk menambah kenangan.</div>';
+                return;
+            }
+            grid.innerHTML = selectedAlbum.photos.map((photo, index) => {
+                const isVideo = isVideoUrl(photo.src);
+                const mimeType = getMimeType(photo.src);
+                const mediaContent = isVideo
+                    ? `<video controls class="h-full w-full object-cover"><source src="${photo.src}" type="${mimeType}">Browser Anda tidak mendukung video.</video>`
+                    : `<img src="${photo.src}" alt="${photo.alt}" loading="lazy" class="cursor-pointer" onclick="openMedia(${index})" onerror="this.closest('.photo-card').classList.add('preview-error');" />`;
+
+                return `
+                    <div class="photo-card relative">
+                        <button class="absolute right-3 top-3 rounded-full bg-white/90 p-2 text-stone-700 shadow-sm hover:bg-stone-100 transition" onclick="deletePhoto(${index})" type="button" title="Hapus media">
+                            <i class="fas fa-trash"></i>
+                        <button class="absolute left-3 top-3 rounded-full bg-white/90 p-2 text-stone-700 shadow-sm hover:bg-stone-100 transition" onclick="openMedia(${index})" type="button" title="Lihat media">
+                            <i class="fas fa-expand"></i>
+                        </button>
+                                <div class="photo-preview">${mediaContent}</div>
+                        <div class="preview-fallback hidden absolute inset-0 flex flex-col items-center justify-center gap-3 bg-white/90 text-stone-600 p-4 text-center">
+                            <i class="fas fa-file-arrow-down text-3xl"></i>
+                            <div class="text-sm font-semibold">Tidak dapat menampilkan preview</div>
+                            <div class="text-xs">${photo.alt}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function openMedia(index) {
+            const item = selectedAlbum && selectedAlbum.photos[index];
+            if (!item) return;
+            if (isImageUrl(item.src)) {
+                const overlay = document.getElementById('lightboxOverlay');
+                const image = document.getElementById('lightboxImage');
+                const download = document.getElementById('lightboxDownload');
+
+                image.src = item.src;
+                image.alt = item.alt;
+                download.href = item.src;
+                download.setAttribute('download', item.alt || 'media');
+                overlay.classList.remove('hidden');
+            } else {
+                window.open(item.src, '_blank');
+            }
+        }
+
+        function closeLightbox() {
+            const overlay = document.getElementById('lightboxOverlay');
+            const image = document.getElementById('lightboxImage');
+            overlay.classList.add('hidden');
+            image.src = '';
+        }
+
+        function showUploadProgress() {
+            document.getElementById('upload-loading-overlay').classList.add('active');
+            document.getElementById('upload-progress').classList.remove('hidden');
+            document.getElementById('upload-progress-text').classList.remove('hidden');
+            document.getElementById('upload-progress-bar').style.width = '0%';
+            document.getElementById('upload-progress-text').textContent = 'Mengunggah...';
+            document.getElementById('upload-loading-text').textContent = 'Tunggu sebentar, file sedang dikirim.';
+        }
+
+        function updateUploadProgress(percent) {
+            document.getElementById('upload-progress-bar').style.width = `${percent}%`;
+            document.getElementById('upload-progress-text').textContent = `Mengunggah ${percent}%`;
+        }
+
+        function hideUploadProgress(success = true) {
+            document.getElementById('upload-loading-text').textContent = success ? 'Upload selesai. Sedikit lagi menampilkan preview.' : 'Upload gagal. Coba lagi.';
+            document.getElementById('upload-progress-text').textContent = success ? 'Unggah selesai.' : 'Unggah gagal.';
+            if (success) {
+                setTimeout(() => {
+                    document.getElementById('upload-progress').classList.add('hidden');
+                    document.getElementById('upload-progress-text').classList.add('hidden');
+                    document.getElementById('upload-loading-overlay').classList.remove('active');
+                }, 900);
+            } else {
+                document.getElementById('upload-loading-overlay').classList.remove('active');
+            }
+        }
+
+        function uploadFileWithProgress(file, albumSlug) {
+            return new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                const formData = new FormData();
+                formData.append('album', albumSlug);
+                formData.append('file', file);
+
+                xhr.open('POST', '/photos/upload');
+                xhr.upload.addEventListener('progress', (event) => {
+                    if (event.lengthComputable) {
+                        const percent = Math.round((event.loaded / event.total) * 100);
+                        updateUploadProgress(percent);
+                    }
+                });
+
+                xhr.onload = () => {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        try {
+                            const result = JSON.parse(xhr.responseText);
+                            resolve(result);
+                        } catch (err) {
+                            reject(new Error('Gagal membaca respons server.'));
+                        }
+                    } else {
+                        try {
+                            const error = JSON.parse(xhr.responseText);
+                            reject(new Error(error.error || 'Upload gagal'));
+                        } catch (err) {
+                            reject(new Error('Upload gagal'));
+                        }
+                    }
+                };
+
+                xhr.onerror = () => reject(new Error('Gagal mengunggah file. Cek koneksi.'));
+                xhr.send(formData);
+            });
+        }
+
+        async function handleUpload(event) {
+            if (!selectedAlbum) return;
+            const files = Array.from(event.target.files);
+            if (!files.length) return;
+
+            document.getElementById('upload-hint').textContent = 'Mengunggah foto...';
+            document.getElementById('upload-hint').classList.remove('hidden');
+            showUploadProgress();
+            let uploadedAny = false;
+
+            for (let i = 0; i < files.length; i += 1) {
+                const file = files[i];
+                try {
+                    const result = await uploadFileWithProgress(file, selectedAlbum.slug);
+                    selectedAlbum.photos.unshift({ src: result.url, alt: result.filename, key: result.key });
+                    uploadedAny = true;
+                } catch (error) {
+                    console.error(error);
+                    document.getElementById('upload-hint').textContent = 'Upload gagal. Coba lagi.';
+                    updateUploadProgress(0);
+                    hideUploadProgress(false);
+                    event.target.value = '';
+                    return;
+                }
+            }
+
+            if (uploadedAny) {
+                renderAlbumDetails();
+                document.getElementById('upload-hint').textContent = 'Foto berhasil diunggah dan ditampilkan di galeri.';
+                hideUploadProgress(true);
+            }
+            event.target.value = '';
+        }
+
+        async function deletePhoto(index) {
+            if (!selectedAlbum) return;
+            const photo = selectedAlbum.photos[index];
+            if (!photo || !photo.key) return;
+            if (!confirm(`Hapus foto ${photo.alt}?`)) return;
+
+            try {
+                const response = await fetch(`/photos?key=${encodeURIComponent(photo.key)}`, {
+                    method: 'DELETE',
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error || 'Gagal menghapus foto.');
+                selectedAlbum.photos.splice(index, 1);
+                renderAlbumDetails();
+                document.getElementById('upload-hint').textContent = 'Foto berhasil dihapus dari album.';
+            } catch (error) {
+                console.error(error);
+                document.getElementById('upload-hint').textContent = 'Gagal menghapus foto. Coba lagi.';
+            }
+        }
+
+        // Load albums from S3 folder names
+        loadAlbumList();
+    </script>
+</body>
+</html>
