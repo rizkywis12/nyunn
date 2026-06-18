@@ -2,475 +2,171 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Untukmu 🌸</title>
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RizYun - Ruang Personal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/playfair-display@5.0.16/400.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/playfair-display@5.0.16/700.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.16/400.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.16/500.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
         body {
-            min-height: 100vh; display: flex; align-items: center; justify-content: center;
-            background: linear-gradient(135deg, #1a0a1e 0%, #2d1b3d 30%, #1e1530 60%, #1a0a1e 100%);
-            font-family: 'Lora', serif; overflow: hidden; position: relative; color: #f0e0d0;
-            touch-action: manipulation; -webkit-font-smoothing: antialiased;
+            font-family: 'Inter', sans-serif;
+            background-color: #FAFAF9;
+            background-image: radial-gradient(at top right, #E7E5E4 0%, transparent 40%),
+                              radial-gradient(at bottom left, #E7E5E4 0%, transparent 40%);
         }
-
-        /* ✨ Stars */
-        .star {
-            position: fixed; width: 2px; height: 2px; background: #fff; border-radius: 50%;
-            pointer-events: none; animation: twinkle var(--dur) ease-in-out infinite;
-            animation-delay: var(--delay); will-change: opacity, transform;
+        .font-serif {
+            font-family: 'Playfair Display', serif;
         }
-        @keyframes twinkle { 0%, 100% { opacity: 0.2; transform: scale(1); } 50% { opacity: 1; transform: scale(1.5); } }
-
-        /* 🌸 Petals */
-        .petal {
-            position: fixed; pointer-events: none; opacity: 0;
-            animation: petalFall linear infinite; animation-delay: var(--delay);
-            filter: drop-shadow(0 0 6px rgba(244, 143, 177, 0.4)); will-change: transform, opacity;
+        .fade-in {
+            animation: fadeIn 0.8s ease-out forwards;
+            opacity: 0;
+            transform: translateY(20px);
         }
-        @keyframes petalFall {
-            0% { opacity: 0; transform: translateY(-20vh) translateX(0) rotate(0deg); }
-            10% { opacity: 0.6; } 90% { opacity: 0.3; }
-            100% { opacity: 0; transform: translateY(110vh) translateX(var(--drift)) rotate(360deg); }
+        .delay-100 { animation-delay: 0.1s; }
+        .delay-200 { animation-delay: 0.2s; }
+        .delay-300 { animation-delay: 0.3s; }
+        
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-
-        /* 🎵 Music Button */
-        .music-btn {
-            position: fixed; top: 20px; right: 20px; z-index: 1000;
-            width: 50px; height: 50px; border-radius: 50%;
-            border: 2px solid rgba(244, 143, 177, 0.4);
-            background: rgba(45, 27, 61, 0.85); backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px); cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            transition: all 0.3s ease; color: #f48fb1; font-size: 1.3rem;
-            -webkit-appearance: none; appearance: none; user-select: none;
+        .text-pop {
+            animation: textPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
-        .music-btn:hover { border-color: #f48fb1; background: rgba(194, 24, 91, 0.35); transform: scale(1.08); }
-        .music-btn:active { transform: scale(0.95); }
-        .music-btn.playing { animation: musicPulse 2s ease-in-out infinite; }
-        .music-btn:disabled { opacity: 0.6; cursor: wait; }
-        @keyframes musicPulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(244, 143, 177, 0.35); }
-            50% { box-shadow: 0 0 0 14px rgba(244, 143, 177, 0); }
+        @keyframes textPop {
+            0% { transform: scale(0.9); opacity: 0.5; }
+            100% { transform: scale(1); opacity: 1; }
         }
-
-        /* 🎼 Song Info */
-        .song-info {
-            position: fixed; top: 80px; right: 20px; background: rgba(45, 27, 61, 0.92);
-            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(244, 143, 177, 0.25); border-radius: 12px;
-            padding: 12px 16px; font-size: 0.75rem; color: rgba(240, 224, 208, 0.85);
-            max-width: 220px; text-align: right; opacity: 0; transform: translateY(-10px);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); pointer-events: none;
-            z-index: 999; line-height: 1.6;
+        .name-chip {
+            transition: all 0.3s ease;
         }
-        .song-info.show { opacity: 1; transform: translateY(0); }
-        .song-info .song-title { color: #f48fb1; font-style: italic; font-size: 0.85rem; font-weight: 600; }
-
-        /* 📦 Main Wrapper */
-        .main-wrapper {
-            width: 100%; max-width: 700px; padding: 40px 20px 110px;
-            position: relative; display: flex; flex-direction: column; align-items: center;
+        .name-chip:hover {
+            transform: translateY(-2px);
         }
-
-        /* ✉️ Intro */
-        .intro-section {
-            text-align: center; cursor: pointer; transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-            width: 100%; max-width: 500px; padding: 20px;
-        }
-        .intro-section.hidden { display: none; }
-        .envelope-icon {
-            font-size: 5rem; animation: envelopeFloat 3s ease-in-out infinite;
-            filter: drop-shadow(0 12px 35px rgba(244, 143, 177, 0.35)); user-select: none;
-        }
-        @keyframes envelopeFloat {
-            0%, 100% { transform: translateY(0) rotate(-2deg); }
-            50% { transform: translateY(-18px) rotate(2deg); }
-        }
-        .intro-text { margin-top: 28px; font-family: 'Dancing Script', cursive; font-size: 1.6rem; color: #f48fb1; opacity: 0.85; }
-        .intro-sub { margin-top: 12px; font-size: 0.9rem; color: rgba(240, 224, 208, 0.45); animation: pulse 2.2s ease-in-out infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 0.35; } 50% { opacity: 0.75; } }
-
-        /* 🎠 Carousel */
-        .carousel-wrapper { display: none; width: 100%; position: relative; }
-        .carousel-wrapper.show { display: block; animation: fadeIn 0.5s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        .carousel {
-            position: relative; width: 100%; overflow: hidden; border-radius: 16px; touch-action: pan-y;
-        }
-        .carousel-track { display: flex; transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); width: 100%; will-change: transform; }
-
-        .slide {
-            min-width: 100%; padding: 45px 35px 50px;
-            background: linear-gradient(180deg, rgba(45, 27, 61, 0.65) 0%, rgba(30, 21, 48, 0.75) 100%);
-            backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px);
-            border: 1px solid rgba(244, 143, 177, 0.18); border-radius: 16px;
-            box-shadow: 0 25px 70px rgba(0,0,0,0.45), inset 0 1px 0 rgba(244, 143, 177, 0.12);
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            opacity: 0.3; transition: opacity 0.4s ease; position: relative;
-        }
-        .slide::before {
-            content: ''; position: absolute; top: 18px; left: 18px; right: 18px; bottom: 18px;
-            border: 1px solid rgba(244, 143, 177, 0.1); border-radius: 10px; pointer-events: none;
-        }
-        .slide.active { opacity: 1; z-index: 2; }
-
-        .slide-header { text-align: center; margin-bottom: 28px; width: 100%; }
-        .slide-header h1 {
-            font-family: 'Dancing Script', cursive; font-size: 2.3rem; color: #f48fb1;
-            font-weight: 700; margin-bottom: 6px; text-shadow: 0 2px 10px rgba(244, 143, 177, 0.2);
-        }
-        .slide-header .sub { font-size: 0.85rem; color: rgba(240, 224, 208, 0.55); font-style: italic; line-height: 1.5; }
-        .slide-header .divider { margin-top: 18px; display: flex; align-items: center; justify-content: center; gap: 12px; }
-        .slide-header .divider::before, .slide-header .divider::after {
-            content: ''; width: 55px; height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(244, 143, 177, 0.5), transparent);
-        }
-
-        .slide-content {
-            text-align: center; font-size: 1.15rem; line-height: 2.2; color: rgba(240, 224, 208, 0.92);
-            font-style: italic; max-width: 520px; padding: 0 10px;
-        }
-        .slide-content .accent { color: #f48fb1; font-weight: 600; font-style: normal; text-shadow: 0 0 15px rgba(244, 143, 177, 0.3); }
-
-        .slide-closing { text-align: right; margin-top: 25px; width: 100%; padding-top: 28px; border-top: 1px solid rgba(244, 143, 177, 0.18); }
-        .slide-closing .for { font-family: 'Dancing Script', cursive; font-size: 1.35rem; color: #f48fb1; margin-bottom: 4px; }
-        .slide-closing .desc { font-size: 0.85rem; color: rgba(240, 224, 208, 0.55); font-style: italic; margin-bottom: 12px; }
-        .slide-closing .signature { font-family: 'Dancing Script', cursive; font-size: 1.6rem; color: #ce93d8; font-weight: 700; }
-
-        /* 🔘 Nav & Dots */
-        .carousel-nav {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-top: 22px; width: 100%; max-width: 520px; padding: 0 10px;
-        }
-        .nav-btn {
-            width: 48px; height: 48px; border-radius: 50%; border: 2px solid rgba(244, 143, 177, 0.45);
-            background: rgba(45, 27, 61, 0.85); backdrop-filter: blur(10px); color: #f48fb1;
-            font-size: 1.25rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
-            transition: all 0.25s ease; -webkit-appearance: none; appearance: none; user-select: none;
-        }
-        .nav-btn:hover:not(:disabled) { border-color: #f48fb1; background: rgba(194, 24, 91, 0.35); transform: scale(1.08); }
-        .nav-btn:active:not(:disabled) { transform: scale(0.95); }
-        .nav-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
-
-        .carousel-dots { display: flex; gap: 9px; margin-top: 20px; justify-content: center; flex-wrap: wrap; }
-        .dot {
-            width: 11px; height: 11px; border-radius: 50%; background: rgba(244, 143, 177, 0.35);
-            border: 2px solid rgba(244, 143, 177, 0.55); cursor: pointer; transition: all 0.3s ease;
-            -webkit-appearance: none; appearance: none;
-        }
-        .dot:hover { background: rgba(244, 143, 177, 0.5); transform: scale(1.1); }
-        .dot.active { background: #f48fb1; transform: scale(1.25); box-shadow: 0 0 12px rgba(244, 143, 177, 0.6); border-color: #f48fb1; }
-
-        /* 🎼 Visualizer */
-        .music-visualizer {
-            position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%);
-            display: flex; gap: 4px; opacity: 0; transition: opacity 0.5s ease; pointer-events: none; z-index: 100;
-        }
-        .music-visualizer.active { opacity: 1; }
-        .music-bar {
-            width: 4px; height: 10px; background: linear-gradient(to top, #f48fb1, #ce93d8);
-            border-radius: 3px; animation: musicBar 0.9s ease-in-out infinite alternate; animation-delay: var(--delay);
-        }
-        @keyframes musicBar { from { height: 5px; opacity: 0.5; } to { height: 22px; opacity: 1; } }
-
-        /* ✨ Glow */
-        .glow {
-            position: fixed; width: 450px; height: 450px; border-radius: 50%;
-            background: radial-gradient(circle, rgba(244, 143, 177, 0.1) 0%, transparent 72%);
-            pointer-events: none; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            animation: glowPulse 4s ease-in-out infinite;
-        }
-        @keyframes glowPulse {
-            0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
-            50% { opacity: 0.9; transform: translate(-50%, -50%) scale(1.05); }
-        }
-
-        /* 🔊 iOS Hint */
-        .ios-hint {
-            position: fixed; bottom: 85px; left: 50%; transform: translateX(-50%) translateY(15px);
-            background: rgba(45, 27, 61, 0.96); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
-            border: 1px solid rgba(244, 143, 177, 0.35); border-radius: 14px; padding: 14px 22px;
-            font-size: 0.82rem; color: rgba(240, 224, 208, 0.92); max-width: 300px; text-align: center;
-            opacity: 0; pointer-events: none; transition: all 0.4s ease; z-index: 997; line-height: 1.6;
-        }
-        .ios-hint.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-        .ios-hint .emoji { font-size: 1.3rem; margin-right: 6px; vertical-align: middle; }
-        .ios-hint ul { text-align: left; margin-top: 8px; padding-left: 18px; font-size: 0.78rem; opacity: 0.9; }
-        .ios-hint li { margin: 3px 0; }
-
-        @media (max-width: 600px) {
-            .slide { padding: 38px 25px 42px; }
-            .slide-header h1 { font-size: 2rem; }
-            .slide-content { font-size: 1.05rem; line-height: 2.1; }
-            .slide-closing .signature { font-size: 1.4rem; }
-            .envelope-icon { font-size: 4.2rem; }
-            .intro-text { font-size: 1.45rem; }
-            .song-info { max-width: 180px; font-size: 0.72rem; right: 15px; top: 75px; }
-            .nav-btn { width: 44px; height: 44px; font-size: 1.1rem; }
-            .music-btn { width: 46px; height: 46px; font-size: 1.2rem; top: 15px; right: 15px; }
-            .ios-hint { max-width: 260px; font-size: 0.78rem; bottom: 80px; }
-        }
-        @media (max-width: 400px) {
-            .slide-content { font-size: 1rem; }
-            .slide-header h1 { font-size: 1.85rem; }
-            .carousel-dots { gap: 7px; }
-            .dot { width: 10px; height: 10px; }
+        .name-chip.active {
+            background-color: #292524;
+            color: white;
+            border-color: #292524;
         }
     </style>
 </head>
-<body>
+<body class="min-h-screen flex flex-col items-center justify-center p-6 text-stone-800">
 
-    <!-- 🎵 LOCAL AUDIO FILE (Ganti 'bg-music.mp3' dengan nama file musikmu) -->
-    <audio id="bgAudio" src="bg-music.mp3" preload="auto" loop playsinline></audio>
-
-    <button class="music-btn" id="musicBtn" onclick="toggleMusic()" title="Nyalakan musik" aria-label="Toggle music">🎵</button>
-
-    <div class="song-info" id="songInfo" aria-live="polite">
-        <div class="song-title">Kiss the Rain Yiruma</div>
-        <div>Songs</div>
-    </div>
-
-    <div class="glow"></div>
-
-    <div class="ios-hint" id="iosHint" role="status">
-        <span class="emoji">🔊</span> Audio tidak muncul?<br>
-        <ul>
-            <li>• Pastikan <strong>silent switch</strong> tidak aktif</li>
-            <li>• Cek volume di Control Center</li>
-            <li>• Ketuk tombol 🎵 sekali lagi</li>
-        </ul>
-    </div>
-
-    <div class="main-wrapper">
-        <div class="intro-section" id="introSection" onclick="openLetter()" role="button" tabindex="0">
-            <div class="envelope-icon" aria-hidden="true">💌</div>
-            <p class="intro-text">Ada sesuatu untukmu...</p>
-            <p class="intro-sub">ketuk untuk membuka</p>
+    <!-- Header & Name Recommendations -->
+    <header class="text-center mb-10 fade-in w-full max-w-2xl">
+        <div class="inline-flex items-center justify-center p-3 rounded-full bg-stone-200 mb-6">
+            <i class="fas fa-heart text-stone-600 text-lg"></i>
         </div>
-
-        <div class="carousel-wrapper" id="carouselWrapper">
-            <div class="carousel" id="carousel" role="region" aria-label="Surat carousel" aria-roledescription="carousel">
-                <div class="carousel-track" id="carouselTrack" role="list">
-                    
-                    <div class="slide active" role="listitem" aria-label="Slide 1 dari 8">
-                        <div class="slide-header"><h1>Untukmu</h1><p class="sub">sebuah surat dari hati yang paling dalam</p><div class="divider"><span>🌸</span></div></div>
-                        <p class="slide-content" style="margin-top: 25px; font-size: 1rem;"><em>👆 Swipe atau ketuk panah untuk membaca</em></p>
-                    </div>
-
-                    <div class="slide" role="listitem" aria-label="Slide 2 dari 8">
-                        <p class="slide-content">Pertama kali kulihat <span class="accent">senyummu</span>,<br>Aku tahu ada badai di balik tawamu,<br>Matamu cantik menyimpan seribu cerita,<br>Tentang Perjuangan yang tak pernah kau cerita.</p>
-                    </div>
-
-                    <div class="slide" role="listitem" aria-label="Slide 3 dari 8">
-                        <p class="slide-content">Bahumu yang kecil menanggung langit,<br>Namun caramu melangkah tak pernah kau ungkit,<br>Tangan mungilmu yang muat menggengam dunia,<br>Adalah tangan paling kuat yang ada dalam cerita.</p>
-                    </div>
-
-                    <div class="slide" role="listitem" aria-label="Slide 4 dari 8">
-                        <p class="slide-content">Aku <span class="accent">kagum</span>, lebih dari sekadar cinta,<br>Melihatmu berjuang dengan senyum di muka,<br>Tidak ada keluhan yang kau biarkan jatuh,<br>Hanya tekad perempuan yang sungguh teguh.</p>
-                    </div>
-
-                    <div class="slide" role="listitem" aria-label="Slide 5 dari 8">
-                        <p class="slide-content">Cantikmu bukan hanya yang tertangkap mata,<br>Tapi dari caramu mencinta tanpa meminta,<br>Lucumu adalah pelariku dari lelah dunia,<br>Dan kekuatanmu membuatku ingin selalu ada.</p>
-                    </div>
-
-                    <div class="slide" role="listitem" aria-label="Slide 6 dari 8">
-                        <p class="slide-content">Izinkan aku menjadi tempat kau <span class="accent">bersandar dan bercerita</span>,<br>Menjadi tangan yang meringankan bebanmu itu,<br>Bukan karena kasihan, tapi karena aku sadar —<br>Perempuan sepertimu layak dicintai seutuhnya.</p>
-                    </div>
-
-                    <div class="slide" role="listitem" aria-label="Slide 7 dari 8">
-                        <p class="slide-content">Kau tidak perlu lagi berjalan sendiri,<br>Aku di sini, bukan untuk mengganti siapapun,<br>Hanya ingin menemanimu setiap hari,<br>Karena kau adalah <span class="accent">rumah</span> yang selalu ingin kuhuni.</p>
-                    </div>
-
-                    <div class="slide" role="listitem" aria-label="Slide 8 dari 8">
-                        <p class="slide-content" style="margin-bottom: 22px; font-size: 1.05rem;">🌸 Terima kasih sudah menjadi dirimu 🌸</p>
-                        <div class="slide-closing"><p class="for">Untuk kamu — yang kuat, yang cantik, dan berarti</p><p class="desc">🌸</p><p class="signature">— RZY</p></div>
-                    </div>
-
-                </div>
+        
+        <h1 id="main-title" class="font-serif text-5xl md:text-6xl font-bold text-stone-900 mb-2 tracking-tight transition-all duration-300">RizYun</h1>
+        <p id="sub-title" class="text-stone-500 text-lg tracking-widest uppercase mb-8 transition-all duration-300">Rizky & Yuyun</p>
+        
+        <div class="bg-white/60 backdrop-blur-sm border border-stone-200 rounded-2xl p-6 mb-8">
+            <p class="text-stone-600 text-sm mb-4 font-medium">💡 Klik salah satu untuk mengganti nama halaman:</p>
+            <div class="flex flex-wrap justify-center gap-3" id="name-options">
+                <button onclick="changeName('RizYun', 'Rizky & Yuyun', this)" class="name-chip active bg-stone-800 text-white px-5 py-2.5 rounded-full text-sm font-medium border-2 border-stone-800 focus:outline-none">
+                    RizYun
+                </button>
+                <button onclick="changeName('YunRiz', 'Yuyun & Rizky', this)" class="name-chip bg-white text-stone-700 px-5 py-2.5 rounded-full text-sm font-medium border-2 border-stone-300 hover:border-stone-800 focus:outline-none">
+                    YunRiz
+                </button>
+                <button onclick="changeName('Rizky & Yuyun', 'Selamanya', this)" class="name-chip bg-white text-stone-700 px-5 py-2.5 rounded-full text-sm font-medium border-2 border-stone-300 hover:border-stone-800 focus:outline-none">
+                    Rizky & Yuyun
+                </button>
+                <button onclick="changeName('Rizy', 'Cerita Kita', this)" class="name-chip bg-white text-stone-700 px-5 py-2.5 rounded-full text-sm font-medium border-2 border-stone-300 hover:border-stone-800 focus:outline-none">
+                    Rizy
+                </button>
             </div>
-
-            <div class="carousel-nav">
-                <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)" aria-label="Slide sebelumnya" disabled>◀</button>
-                <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)" aria-label="Slide berikutnya">▶</button>
-            </div>
-            <div class="carousel-dots" id="carouselDots" role="tablist" aria-label="Navigasi slide"></div>
         </div>
-    </div>
+    </header>
 
-    <div class="music-visualizer" id="musicVisualizer" aria-hidden="true">
-        <div class="music-bar" style="--delay: 0s"></div><div class="music-bar" style="--delay: 0.1s"></div>
-        <div class="music-bar" style="--delay: 0.2s"></div><div class="music-bar" style="--delay: 0.3s"></div>
-        <div class="music-bar" style="--delay: 0.4s"></div><div class="music-bar" style="--delay: 0.3s"></div>
-        <div class="music-bar" style="--delay: 0.2s"></div><div class="music-bar" style="--delay: 0.1s"></div>
-    </div>
+    <!-- Menu Cards -->
+    <main class="w-full max-w-4xl grid grid-cols-1 md:grid-cols-3 gap-6 fade-in delay-200">
+        
+        <!-- Card 1: Puisi -->
+        <a href="/puisi" class="group block bg-white p-8 rounded-2xl border border-stone-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+            <div class="w-14 h-14 bg-stone-100 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-stone-800 transition-colors duration-300">
+                <i class="fas fa-feather-alt text-2xl text-stone-600 group-hover:text-white transition-colors duration-300"></i>
+            </div>
+            <h2 class="font-serif text-2xl font-bold text-stone-900 mb-2 group-hover:text-stone-700 transition-colors">Puisi</h2>
+            <p class="text-stone-500 text-sm leading-relaxed">Kumpulan kata-kata yang tersusun menjadi rasa dan makna.</p>
+            <div class="mt-6 flex items-center text-stone-400 group-hover:text-stone-800 transition-colors duration-300">
+                <span class="text-sm font-medium">Buka</span>
+                <i class="fas fa-arrow-right ml-2 text-xs group-hover:translate-x-1 transition-transform duration-300"></i>
+            </div>
+        </a>
+
+        <!-- Card 2: Pesan Suara -->
+        <a href="/pesan-suara" class="group block bg-white p-8 rounded-2xl border border-stone-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+            <div class="w-14 h-14 bg-stone-100 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-stone-800 transition-colors duration-300">
+                <i class="fas fa-microphone-lines text-2xl text-stone-600 group-hover:text-white transition-colors duration-300"></i>
+            </div>
+            <h2 class="font-serif text-2xl font-bold text-stone-900 mb-2 group-hover:text-stone-700 transition-colors">Pesan Suara</h2>
+            <p class="text-stone-500 text-sm leading-relaxed">Rekaman singkat, cerita, atau sekadar sapaan yang tersimpan.</p>
+            <div class="mt-6 flex items-center text-stone-400 group-hover:text-stone-800 transition-colors duration-300">
+                <span class="text-sm font-medium">Dengarkan</span>
+                <i class="fas fa-arrow-right ml-2 text-xs group-hover:translate-x-1 transition-transform duration-300"></i>
+            </div>
+        </a>
+
+        <!-- Card 3: Kenangan -->
+        <a href="/kenangan" class="group block bg-white p-8 rounded-2xl border border-stone-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+            <div class="w-14 h-14 bg-stone-100 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-stone-800 transition-colors duration-300">
+                <i class="fas fa-camera-retro text-2xl text-stone-600 group-hover:text-white transition-colors duration-300"></i>
+            </div>
+            <h2 class="font-serif text-2xl font-bold text-stone-900 mb-2 group-hover:text-stone-700 transition-colors">Kenangan</h2>
+            <p class="text-stone-500 text-sm leading-relaxed">Galeri momen dan potret waktu yang enggan untuk dilupakan.</p>
+            <div class="mt-6 flex items-center text-stone-400 group-hover:text-stone-800 transition-colors duration-300">
+                <span class="text-sm font-medium">Lihat</span>
+                <i class="fas fa-arrow-right ml-2 text-xs group-hover:translate-x-1 transition-transform duration-300"></i>
+            </div>
+        </a>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-16 text-center fade-in delay-300">
+        <p id="footer-text" class="text-stone-400 text-sm">&copy; 2026 RizYun. Dibuat dengan sederhana dan penuh rasa.</p>
+    </footer>
 
     <script>
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-        let audioUnlocked = false;
-        let isPlaying = false;
-
-        const bgAudio = document.getElementById('bgAudio');
-        const musicBtn = document.getElementById('musicBtn');
-        const visualizer = document.getElementById('musicVisualizer');
-        const songInfo = document.getElementById('songInfo');
-
-        // 🔓 iOS AUDIO UNLOCK
-        function unlockAudio() {
-            if (isIOS && !audioUnlocked) {
-                // Play tiny silent audio to wake up iOS audio engine
-                const unlock = new Audio('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAA=');
-                unlock.volume = 0.01;
-                unlock.play().then(() => {
-                    unlock.pause();
-                    audioUnlocked = true;
-                    console.log('✅ iOS audio unlocked');
-                }).catch(() => {});
-            }
+        function changeName(title, subtitle, btnElement) {
+            // Update Document Title
+            document.title = title + " - Ruang Personal";
+            
+            // Update Main Heading with animation
+            const mainTitle = document.getElementById('main-title');
+            mainTitle.classList.remove('text-pop');
+            void mainTitle.offsetWidth; // Trigger reflow to restart animation
+            mainTitle.textContent = title;
+            mainTitle.classList.add('text-pop');
+            
+            // Update Subtitle with animation
+            const subTitle = document.getElementById('sub-title');
+            subTitle.classList.remove('text-pop');
+            void subTitle.offsetWidth;
+            subTitle.textContent = subtitle;
+            subTitle.classList.add('text-pop');
+            
+            // Update Footer
+            document.getElementById('footer-text').textContent = `© 2026 ${title}. Dibuat dengan sederhana dan penuh rasa.`;
+            
+            // Update Active State of Buttons
+            const buttons = document.querySelectorAll('.name-chip');
+            buttons.forEach(btn => {
+                btn.classList.remove('active', 'bg-stone-800', 'text-white', 'border-stone-800');
+                btn.classList.add('bg-white', 'text-stone-700', 'border-stone-300');
+            });
+            
+            btnElement.classList.add('active', 'bg-stone-800', 'text-white', 'border-stone-800');
+            btnElement.classList.remove('bg-white', 'text-stone-700', 'border-stone-300');
         }
-        ['touchstart', 'touchend', 'click', 'keydown'].forEach(evt => {
-            document.addEventListener(evt, unlockAudio, { passive: true, once: true });
-        });
-
-        // 🎵 TOGGLE MUSIC (Local Audio)
-        function toggleMusic() {
-            unlockAudio(); // Always attempt unlock first (safe on iOS)
-            musicBtn.disabled = true;
-
-            if (!isPlaying) {
-                bgAudio.volume = 0.75;
-                const promise = bgAudio.play();
-                if (promise !== undefined) {
-                    promise.then(() => onPlaySuccess()).catch(err => onPlayError(err));
-                } else {
-                    setTimeout(() => {
-                        if (!bgAudio.paused) onPlaySuccess();
-                        else onPlayError('Blocked by browser');
-                    }, 200);
-                }
-            } else {
-                bgAudio.pause();
-                isPlaying = false;
-                musicBtn.textContent = '🎵';
-                musicBtn.classList.remove('playing');
-                visualizer.classList.remove('active');
-                songInfo.classList.remove('show');
-                musicBtn.disabled = false;
-            }
-        }
-
-        function onPlaySuccess() {
-            isPlaying = true;
-            musicBtn.textContent = '🎶';
-            musicBtn.classList.add('playing');
-            visualizer.classList.add('active');
-            songInfo.classList.add('show');
-            setTimeout(() => songInfo.classList.remove('show'), 4000);
-            musicBtn.disabled = false;
-        }
-
-        function onPlayError(err) {
-            console.warn('⚠️ Audio play failed:', err);
-            isPlaying = false;
-            musicBtn.textContent = '🎵';
-            musicBtn.classList.remove('playing');
-            musicBtn.disabled = false;
-            if (isIOS) document.getElementById('iosHint').classList.add('show');
-            setTimeout(() => document.getElementById('iosHint').classList.remove('show'), 6000);
-        }
-
-        // Handle audio file not found / error
-        bgAudio.addEventListener('error', () => {
-            console.error('❌ Audio file not found or unsupported');
-            musicBtn.innerHTML = '🚫';
-            musicBtn.title = 'File musik tidak ditemukan';
-        });
-
-        // 🎠 CAROUSEL
-        const track = document.getElementById('carouselTrack');
-        const slides = document.querySelectorAll('.slide');
-        const dotsContainer = document.getElementById('carouselDots');
-        const prevBtn = document.getElementById('prevBtn');
-        const nextBtn = document.getElementById('nextBtn');
-        const carousel = document.getElementById('carousel');
-
-        let currentSlide = 0;
-        const totalSlides = slides.length;
-
-        slides.forEach((_, idx) => {
-            const dot = document.createElement('button');
-            dot.className = 'dot' + (idx === 0 ? ' active' : '');
-            dot.setAttribute('role', 'tab');
-            dot.setAttribute('aria-label', `Ke slide ${idx + 1}`);
-            dot.onclick = () => goToSlide(idx);
-            dotsContainer.appendChild(dot);
-        });
-        const dots = document.querySelectorAll('.dot');
-
-        function updateCarousel() {
-            track.style.transform = `translateX(-${currentSlide * 100}%)`;
-            slides.forEach((s, i) => { s.classList.toggle('active', i === currentSlide); s.setAttribute('aria-hidden', i !== currentSlide); });
-            dots.forEach((d, i) => { d.classList.toggle('active', i === currentSlide); d.setAttribute('aria-selected', i === currentSlide); });
-            prevBtn.disabled = currentSlide === 0;
-            nextBtn.disabled = currentSlide === totalSlides - 1;
-        }
-
-        function goToSlide(i) {
-            if (i < 0) i = 0;
-            if (i >= totalSlides) i = totalSlides - 1;
-            if (i !== currentSlide) {
-                currentSlide = i;
-                updateCarousel();
-                if (!isPlaying && currentSlide > 0) {
-                    setTimeout(() => { if (!isPlaying) toggleMusic(); }, 150);
-                }
-            }
-        }
-        function changeSlide(d) { goToSlide(currentSlide + d); }
-
-        // 👆 SWIPE
-        let startX = 0, startY = 0;
-        carousel.addEventListener('touchstart', e => { startX = e.changedTouches[0].screenX; startY = e.changedTouches[0].screenY; }, { passive: true });
-        carousel.addEventListener('touchend', e => {
-            const diffX = startX - e.changedTouches[0].screenX;
-            const diffY = Math.abs(e.changedTouches[0].screenY - startY);
-            if (Math.abs(diffX) > 50 && diffY < 40) {
-                changeSlide(diffX > 0 ? 1 : -1);
-            }
-        }, { passive: true });
-
-        // ⌨️ KEYBOARD
-        document.addEventListener('keydown', e => {
-            if (!document.getElementById('carouselWrapper').classList.contains('show')) return;
-            if (e.key === 'ArrowLeft') { e.preventDefault(); changeSlide(-1); }
-            else if (e.key === 'ArrowRight') { e.preventDefault(); changeSlide(1); }
-        });
-
-        // ✉️ OPEN LETTER
-        function openLetter() {
-            const intro = document.getElementById('introSection');
-            const wrapper = document.getElementById('carouselWrapper');
-            intro.style.transition = 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
-            intro.style.opacity = '0'; intro.style.transform = 'scale(0.92) translateY(-25px)';
-            intro.style.pointerEvents = 'none';
-            setTimeout(() => {
-                intro.classList.add('hidden');
-                wrapper.classList.add('show');
-                updateCarousel();
-                if (!isPlaying) setTimeout(() => { if (!isPlaying) toggleMusic(); }, isIOS ? 500 : 200);
-            }, 500);
-        }
-
-        document.getElementById('introSection').addEventListener('keypress', e => {
-            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLetter(); }
-        });
-
-        updateCarousel();
-        console.log('🌸 Untukmu — offline audio mode');
     </script>
 </body>
 </html>
+
