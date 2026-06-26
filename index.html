@@ -3,168 +3,528 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RizYun - Ruang Personal</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/playfair-display@5.0.16/400.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/playfair-display@5.0.16/700.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.16/400.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.16/500.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Ajakan Makan Sore ☕</title>
+    <link href="https://cdn.jsdelivr.net/npm/fontsource/inter@4.5.0/index.css" rel="stylesheet">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #FAFAF9;
-            background-image: radial-gradient(at top right, #E7E5E4 0%, transparent 40%),
-                              radial-gradient(at bottom left, #E7E5E4 0%, transparent 40%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 30%, #0f3460 60%, #e94560 100%);
+            overflow: hidden;
+            position: relative;
         }
-        .font-serif {
-            font-family: 'Playfair Display', serif;
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
         }
-        .fade-in {
-            animation: fadeIn 0.8s ease-out forwards;
-            opacity: 0;
-            transform: translateY(20px);
+
+        .star {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 2s infinite alternate;
         }
-        .delay-100 { animation-delay: 0.1s; }
-        .delay-200 { animation-delay: 0.2s; }
-        .delay-300 { animation-delay: 0.3s; }
-        
-        @keyframes fadeIn {
+
+        @keyframes twinkle {
+            0% { opacity: 0.3; transform: scale(1); }
+            100% { opacity: 1; transform: scale(1.5); }
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 48px 40px;
+            max-width: 480px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+            animation: fadeInUp 1s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
-        .text-pop {
-            animation: textPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+
+        .icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            animation: bounce 2s infinite;
         }
-        @keyframes textPop {
-            0% { transform: scale(0.9); opacity: 0.5; }
-            100% { transform: scale(1); opacity: 1; }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
-        .name-chip {
+
+        h1 {
+            color: #fff;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+            margin-bottom: 32px;
+        }
+
+        .details {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 32px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 15px;
+        }
+
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .detail-item .emoji {
+            font-size: 24px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            flex-shrink: 0;
+        }
+
+        .detail-item .text {
+            text-align: left;
+        }
+
+        .detail-item .label {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 2px;
+        }
+
+        .detail-item .value {
+            font-weight: 600;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            position: relative;
+            min-height: 80px;
+            padding: 10px;
+        }
+
+        .btn {
+            padding: 14px 36px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
             transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
         }
-        .name-chip:hover {
-            transform: translateY(-2px);
-        }
-        .name-chip.active {
-            background-color: #292524;
+
+        .btn-mau {
+            background: linear-gradient(135deg, #e94560, #ff6b6b);
             color: white;
-            border-color: #292524;
+            box-shadow: 0 8px 24px rgba(233, 69, 96, 0.4);
+            z-index: 5;
+            position: relative;
+        }
+
+        .btn-mau:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 32px rgba(233, 69, 96, 0.6);
+        }
+
+        .btn-tolak {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            z-index: 60;
+            user-select: none;
+            position: fixed;
+            transition: left 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+                        top 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+                        transform 0.3s ease,
+                        font-size 0.3s ease,
+                        padding 0.3s ease;
+        }
+
+        .btn-tolak:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .acceptance-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .acceptance-overlay.show {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .acceptance-content {
+            text-align: center;
+            animation: scaleIn 0.5s ease;
+            padding: 20px;
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .acceptance-content .big-emoji {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: bounce 1s infinite;
+        }
+
+        .acceptance-content h2 {
+            color: #fff;
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .acceptance-content p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 16px;
+            max-width: 300px;
+        }
+
+        .confetti {
+            position: fixed;
+            top: -10px;
+            z-index: 101;
+            pointer-events: none;
+            animation: fall linear forwards;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(110vh) rotate(720deg);
+            }
+        }
+
+        .heart {
+            position: fixed;
+            font-size: 20px;
+            animation: floatUp 3s ease-out forwards;
+            pointer-events: none;
+            z-index: 99;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-200px) scale(0.5); }
+        }
+
+        .hint-text {
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 12px;
+            margin-top: 20px;
+            font-style: italic;
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center justify-center p-6 text-stone-800">
+<body>
+    <div class="stars" id="stars"></div>
 
-    <!-- Header & Name Recommendations -->
-    <header class="text-center mb-10 fade-in w-full max-w-2xl">
-        <div class="inline-flex items-center justify-center p-3 rounded-full bg-stone-200 mb-6">
-            <i class="fas fa-heart text-stone-600 text-lg"></i>
+    <div class="container">
+        <div class="icon">🌅</div>
+        <h1>Yuk, Makan Sore!</h1>
+        <p class="subtitle">Ada yang mau ngajak kamu nih~</p>
+
+        <div class="details">
+            <div class="detail-item">
+                <div class="emoji">📅</div>
+                <div class="text">
+                    <div class="label">Tanggal</div>
+                    <div class="value">Senin, 29 Juni 2026</div>
+                </div>
+            </div>
+            <div class="detail-item">
+                <div class="emoji">📍</div>
+                <div class="text">
+                    <div class="label">Lokasi</div>
+                    <div class="value">Cafe Delapa</div>
+                </div>
+            </div>
+            <div class="detail-item">
+                <div class="emoji">🕐</div>
+                <div class="text">
+                    <div class="label">Waktu</div>
+                    <div class="value">Sore - Jam 7 Malam</div>
+                </div>
+            </div>
+            <div class="detail-item">
+                <div class="emoji">🍽️</div>
+                <div class="text">
+                    <div class="label">Aktivitas</div>
+                    <div class="value">Makan & Ngobrol</div>
+                </div>
+            </div>
         </div>
-        
-        <h1 id="main-title" class="font-serif text-5xl md:text-6xl font-bold text-stone-900 mb-2 tracking-tight transition-all duration-300">RizYun</h1>
-        <p id="sub-title" class="text-stone-500 text-lg tracking-widest uppercase mb-8 transition-all duration-300">Rizky & Yuyun</p>
-        
-        <div class="bg-white/60 backdrop-blur-sm border border-stone-200 rounded-2xl p-6 mb-8">
-            <p class="text-stone-600 text-sm mb-4 font-medium">💡 Klik salah satu untuk mengganti nama halaman:</p>
-            <div class="flex flex-wrap justify-center gap-3" id="name-options">
-                <button onclick="changeName('RizYun', 'Rizky & Yuyun', this)" class="name-chip active bg-stone-800 text-white px-5 py-2.5 rounded-full text-sm font-medium border-2 border-stone-800 focus:outline-none">
-                    RizYun
-                </button>
-                <button onclick="changeName('YunRiz', 'Yuyun & Rizky', this)" class="name-chip bg-white text-stone-700 px-5 py-2.5 rounded-full text-sm font-medium border-2 border-stone-300 hover:border-stone-800 focus:outline-none">
-                    YunRiz
-                </button>
-                <button onclick="changeName('Rizky & Yuyun', 'Selamanya', this)" class="name-chip bg-white text-stone-700 px-5 py-2.5 rounded-full text-sm font-medium border-2 border-stone-300 hover:border-stone-800 focus:outline-none">
-                    Rizky & Yuyun
-                </button>
-                <button onclick="changeName('Rizy', 'Cerita Kita', this)" class="name-chip bg-white text-stone-700 px-5 py-2.5 rounded-full text-sm font-medium border-2 border-stone-300 hover:border-stone-800 focus:outline-none">
-                    Rizy
-                </button>
-            </div>
+
+        <div class="buttons" id="buttonArea">
+            <button class="btn btn-mau" id="btnMau" onclick="accept()">💖 Mau</button>
+            <button class="btn btn-tolak" id="btnTolak">Tolak</button>
         </div>
-    </header>
 
-    <!-- Menu Cards -->
-    <main class="w-full max-w-4xl grid grid-cols-1 md:grid-cols-3 gap-6 fade-in delay-200">
-        
-        <!-- Card 1: Puisi -->
-        <a href="puisi/puisi1.html" class="group block bg-white p-8 rounded-2xl border border-stone-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-            <div class="w-14 h-14 bg-stone-100 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-stone-800 transition-colors duration-300">
-                <i class="fas fa-feather-alt text-2xl text-stone-600 group-hover:text-white transition-colors duration-300"></i>
-            </div>
-            <h2 class="font-serif text-2xl font-bold text-stone-900 mb-2 group-hover:text-stone-700 transition-colors">Puisi</h2>
-            <p class="text-stone-500 text-sm leading-relaxed">Kumpulan kata-kata yang tersusun menjadi rasa dan makna.</p>
-            <div class="mt-6 flex items-center text-stone-400 group-hover:text-stone-800 transition-colors duration-300">
-                <span class="text-sm font-medium">Buka</span>
-                <i class="fas fa-arrow-right ml-2 text-xs group-hover:translate-x-1 transition-transform duration-300"></i>
-            </div>
-        </a>
+        <p class="hint-text">* Tombol tolak agak pemalu 😄</p>
+    </div>
 
-        <!-- Card 2: Pesan Suara -->
-        <a href="pesan-suara.html" class="group block bg-white p-8 rounded-2xl border border-stone-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-            <div class="w-14 h-14 bg-stone-100 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-stone-800 transition-colors duration-300">
-                <i class="fas fa-microphone-lines text-2xl text-stone-600 group-hover:text-white transition-colors duration-300"></i>
-            </div>
-            <h2 class="font-serif text-2xl font-bold text-stone-900 mb-2 group-hover:text-stone-700 transition-colors">Pesan Suara</h2>
-            <p class="text-stone-500 text-sm leading-relaxed">Rekaman singkat, cerita, atau sekadar sapaan yang tersimpan.</p>
-            <div class="mt-6 flex items-center text-stone-400 group-hover:text-stone-800 transition-colors duration-300">
-                <span class="text-sm font-medium">Dengarkan</span>
-                <i class="fas fa-arrow-right ml-2 text-xs group-hover:translate-x-1 transition-transform duration-300"></i>
-            </div>
-        </a>
-
-        <!-- Card 3: Kenangan -->
-        <a href="kenangan.html" class="group block bg-white p-8 rounded-2xl border border-stone-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-            <div class="w-14 h-14 bg-stone-100 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-stone-800 transition-colors duration-300">
-                <i class="fas fa-camera-retro text-2xl text-stone-600 group-hover:text-white transition-colors duration-300"></i>
-            </div>
-            <h2 class="font-serif text-2xl font-bold text-stone-900 mb-2 group-hover:text-stone-700 transition-colors">Kenangan</h2>
-            <p class="text-stone-500 text-sm leading-relaxed">Galeri momen dan potret waktu yang enggan untuk dilupakan.</p>
-            <div class="mt-6 flex items-center text-stone-400 group-hover:text-stone-800 transition-colors duration-300">
-                <span class="text-sm font-medium">Lihat</span>
-                <i class="fas fa-arrow-right ml-2 text-xs group-hover:translate-x-1 transition-transform duration-300"></i>
-            </div>
-        </a>
-
-    </main>
-
-    <!-- Footer -->
-    <footer class="mt-16 text-center fade-in delay-300">
-        <p id="footer-text" class="text-stone-400 text-sm">&copy; 2026 RizYun. Dibuat dengan sederhana dan penuh rasa.</p>
-    </footer>
+    <div class="acceptance-overlay" id="overlay">
+        <div class="acceptance-content">
+            <div class="big-emoji">🎉</div>
+            <h2>Yeayy! Makasih ya!</h2>
+            <p>Udah ditunggu di Cafe Delapa, Senin 29 Juni 2026! Sampai ketemu~ ✨</p>
+        </div>
+    </div>
 
     <script>
-        function changeName(title, subtitle, btnElement) {
-            // Update Document Title
-            document.title = title + " - Ruang Personal";
+        // Create stars
+        const starsContainer = document.getElementById('stars');
+        for (let i = 0; i < 80; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.animationDelay = Math.random() * 2 + 's';
+            star.style.animationDuration = (Math.random() * 2 + 1) + 's';
+            starsContainer.appendChild(star);
+        }
+
+        // Dodge button logic
+        const btnTolak = document.getElementById('btnTolak');
+        const btnMau = document.getElementById('btnMau');
+        let dodgeCount = 0;
+        let hasStartedRunning = false;
+
+        function dodgeButton(event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
             
-            // Update Main Heading with animation
-            const mainTitle = document.getElementById('main-title');
-            mainTitle.classList.remove('text-pop');
-            void mainTitle.offsetWidth; // Trigger reflow to restart animation
-            mainTitle.textContent = title;
-            mainTitle.classList.add('text-pop');
+            dodgeCount++;
+
+            const btnRect = btnTolak.getBoundingClientRect();
+            const btnWidth = btnRect.width;
+            const btnHeight = btnRect.height;
+
+            // First time: switch to fixed positioning based on current position
+            if (!hasStartedRunning) {
+                hasStartedRunning = true;
+                btnTolak.style.left = btnRect.left + 'px';
+                btnTolak.style.top = btnRect.top + 'px';
+            }
+
+            // Get cursor position
+            let cursorX = 0;
+            let cursorY = 0;
             
-            // Update Subtitle with animation
-            const subTitle = document.getElementById('sub-title');
-            subTitle.classList.remove('text-pop');
-            void subTitle.offsetWidth;
-            subTitle.textContent = subtitle;
-            subTitle.classList.add('text-pop');
+            if (event && event.clientX !== undefined) {
+                cursorX = event.clientX;
+                cursorY = event.clientY;
+            } else if (event && event.touches && event.touches[0]) {
+                cursorX = event.touches[0].clientX;
+                cursorY = event.touches[0].clientY;
+            }
+
+            // Batasi area pergerakan: hanya di dalam viewport dengan margin aman
+            // Margin besar agar tombol tidak pernah keluar layar
+            const safeMargin = 60;
+            const maxX = window.innerWidth - btnWidth - safeMargin;
+            const maxY = window.innerHeight - btnHeight - safeMargin;
+            const minX = safeMargin;
+            const minY = safeMargin;
+
+            // Calculate new position away from cursor
+            let newX, newY;
+            let attempts = 0;
+            const minDistance = 150;
             
-            // Update Footer
-            document.getElementById('footer-text').textContent = `© 2026 ${title}. Dibuat dengan sederhana dan penuh rasa.`;
+            do {
+                newX = Math.random() * (maxX - minX) + minX;
+                newY = Math.random() * (maxY - minY) + minY;
+                attempts++;
+                
+                const distFromCursor = Math.sqrt(
+                    Math.pow(newX + btnWidth/2 - cursorX, 2) + 
+                    Math.pow(newY + btnHeight/2 - cursorY, 2)
+                );
+                
+                if (distFromCursor > minDistance || attempts > 30) {
+                    break;
+                }
+            } while (attempts < 30);
+
+            // Clamp posisi agar 100% dalam viewport (dengan safety margin lebih besar)
+            newX = Math.max(minX, Math.min(newX, maxX));
+            newY = Math.max(minY, Math.min(newY, maxY));
+
+            btnTolak.style.left = newX + 'px';
+            btnTolak.style.top = newY + 'px';
+
+            // Add rotation (kecil saja agar tidak keluar bounds)
+            const rotation = (Math.random() - 0.5) * 15;
+            btnTolak.style.transform = `rotate(${rotation}deg)`;
+
+            // Change text
+            const texts = [
+                'Tolak',
+                'Yakin? 🥺',
+                'Jangan dong~',
+                'Kabuuur! 💨',
+                'Ga bisa di klik!',
+                'Hehehe~ 😝',
+                'Nyerah aja deh',
+                'Pencet Mau aja 💕',
+                'Masih kabur~',
+                'Capek kan? Mau aja 🥹'
+            ];
+
+            btnTolak.textContent = texts[Math.min(dodgeCount, texts.length - 1)];
+
+            // Make "Mau" button bigger
+            const scale = 1 + (dodgeCount * 0.06);
+            btnMau.style.transform = `scale(${Math.min(scale, 1.6)})`;
+            btnMau.style.transition = 'transform 0.3s ease';
+
+            // Make tolak button smaller
+            const tolakScale = Math.max(1 - (dodgeCount * 0.04), 0.55);
+            btnTolak.style.fontSize = `${16 * tolakScale}px`;
+            btnTolak.style.padding = `${14 * tolakScale}px ${36 * tolakScale}px`;
+        }
+
+        // Add event listeners
+        btnTolak.addEventListener('mouseenter', dodgeButton);
+        btnTolak.addEventListener('touchstart', dodgeButton);
+        btnTolak.addEventListener('click', dodgeButton);
+
+        // Track mouse for proximity dodge
+        document.addEventListener('mousemove', (e) => {
+            if (!hasStartedRunning) return;
             
-            // Update Active State of Buttons
-            const buttons = document.querySelectorAll('.name-chip');
-            buttons.forEach(btn => {
-                btn.classList.remove('active', 'bg-stone-800', 'text-white', 'border-stone-800');
-                btn.classList.add('bg-white', 'text-stone-700', 'border-stone-300');
-            });
-            
-            btnElement.classList.add('active', 'bg-stone-800', 'text-white', 'border-stone-800');
-            btnElement.classList.remove('bg-white', 'text-stone-700', 'border-stone-300');
+            const btnRect = btnTolak.getBoundingClientRect();
+            const btnCenterX = btnRect.left + btnRect.width / 2;
+            const btnCenterY = btnRect.top + btnRect.height / 2;
+
+            const distX = e.clientX - btnCenterX;
+            const distY = e.clientY - btnCenterY;
+            const distance = Math.sqrt(distX * distX + distY * distY);
+
+            if (distance < 90) {
+                dodgeButton(e);
+            }
+        });
+
+        // Accept action
+        function accept() {
+            const overlay = document.getElementById('overlay');
+            overlay.classList.add('show');
+            createConfetti();
+            createHearts();
+        }
+
+        function createConfetti() {
+            const colors = ['#e94560', '#ff6b6b', '#ffd93d', '#6bcf7f', '#4ecdc4', '#a855f7'];
+            for (let i = 0; i < 60; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + 'vw';
+                    confetti.style.width = Math.random() * 10 + 5 + 'px';
+                    confetti.style.height = Math.random() * 10 + 5 + 'px';
+                    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+                    confetti.style.animationDuration = Math.random() * 2 + 2 + 's';
+                    document.body.appendChild(confetti);
+
+                    setTimeout(() => confetti.remove(), 4000);
+                }, i * 50);
+            }
+        }
+
+        function createHearts() {
+            const hearts = ['💖', '💕', '✨', '🎉', '💗', '🥰'];
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    const heart = document.createElement('div');
+                    heart.className = 'heart';
+                    heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+                    heart.style.left = Math.random() * 100 + 'vw';
+                    heart.style.bottom = '0';
+                    heart.style.fontSize = Math.random() * 20 + 15 + 'px';
+                    heart.style.animationDuration = Math.random() * 2 + 2 + 's';
+                    document.body.appendChild(heart);
+
+                    setTimeout(() => heart.remove(), 4000);
+                }, i * 100);
+            }
         }
     </script>
 </body>
